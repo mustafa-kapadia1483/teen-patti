@@ -1,5 +1,5 @@
 <script>
-	import { navButtonText } from '../stores';
+	import { navButtonText, socket } from '../stores';
 	import '../app.css';
 </script>
 
@@ -9,7 +9,7 @@
 	</div>
 	<div class="navbar-end">
 		<a class="mr-4 link link-hover" href="/">Github</a>
-		<a class="btn btn-primary" href="/4455" role="button">{$navButtonText}</a>
+		<button class="btn btn-primary">{$navButtonText}</button>
 	</div>
 </nav>
 

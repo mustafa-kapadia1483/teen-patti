@@ -1,5 +1,12 @@
 <script>
-	import { navButtonText } from '../stores';
+	import { navButtonText, socket } from '../stores';
+	import { io } from 'socket.io-client';
+	import { serverURL } from '../constants';
+
+	const newSocket = io(serverURL, {
+		transports: ['websocket']
+	});
+	$socket = newSocket;
 	$navButtonText = 'Create Room';
 </script>
 
