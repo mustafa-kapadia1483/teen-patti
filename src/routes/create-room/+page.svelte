@@ -37,13 +37,16 @@
 		<label for="roomName" class="label">
 			<span class="label-text">Room Name:</span>
 		</label>
-		<input
-			bind:value={roomName}
-			id="roomName"
-			type="text"
-			placeholder="Type here"
-			class="input input-bordered w-full max-w-xs"
-		/>
+		<div class="input-group">
+			<input
+				bind:value={roomName}
+				id="roomName"
+				type="text"
+				placeholder="Enter Room Name"
+				class="input input-bordered w-full max-w-xs"
+			/>
+			<button on:click|preventDefault={() => goto(roomName)} class="btn btn-square"> Join </button>
+		</div>
 	</div>
 	<div class="form-control w-full max-w-xs">
 		<label for="table" class="label">
@@ -58,5 +61,7 @@
 		/>
 	</div>
 
-	<button class="btn btn-info" on:click|preventDefault={createRoomHanlder}> Create Room </button>
+	<button class="mt-4 btn btn-info" on:click|preventDefault={createRoomHanlder}>
+		Create Room
+	</button>
 </form>

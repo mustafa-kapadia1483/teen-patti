@@ -1,5 +1,4 @@
 <script>
-	import { navButtonText, socket } from '../stores';
 	import '../app.css';
 </script>
 
@@ -9,7 +8,7 @@
 	</div>
 	<div class="navbar-end">
 		<a class="mr-4 link link-hover" href="/">Github</a>
-		<a href="/create-room" class="btn btn-primary">{$navButtonText}</a>
+		<a href="/create-room" class="btn btn-primary">Create Room</a>
 	</div>
 </nav>
 

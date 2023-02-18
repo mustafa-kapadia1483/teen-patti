@@ -1,8 +1,3 @@
-<script>
-	import { navButtonText } from '../stores';
-	$navButtonText = 'Create Room';
-</script>
-
 <article>
 	<h1 class="text-2xl mt-5 font-bold">What is Teen Patti ?</h1>
 	<p class="mt-2">

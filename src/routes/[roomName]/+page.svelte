@@ -1,31 +1,51 @@
 <script>
 	import { onMount } from 'svelte';
-	import { navButtonText, socket } from '../../stores';
+	import { socket } from '../../stores';
+	import { goto } from '$app/navigation';
 	export let data;
-	$navButtonText = 'Leave Room';
 
 	let username = '';
 	let usernameCreated = false;
 	let roomData = null;
 	let cutAt = 0;
 	let cardsToDeal = 3;
+	let chal = 1;
+
+	$: myChance = roomData?.usersList[roomData?.currentPlayer].id === $socket.id;
 
 	function createUserHandler() {
-		console.log(data.roomID);
-		$socket.emit('joinRoom', username, data.roomID);
+		console.log(data.roomName);
+		$socket.emit('joinRoom', username, data.roomName);
 		usernameCreated = true;
+	}
+
+	function leaveRoomHandler() {
+		$socket.emit('leaveRoom');
+		goto('create-room');
+	}
+
+	function seeCardsHandler() {
+		$socket.emit('seeCards');
+	}
+
+	function chalHandler() {
+		$socket.emit('play', false, chal);
 	}
 
 	onMount(() => {
 		$socket.on('error', console.log);
 		$socket.on('roomData', (res) => {
-			roomData = res;
+			roomData = { ...roomData, ...res };
 			console.log(res);
 		});
 	});
 
 	function startGameHandler() {
-		$socket.emit('start', data.roomID, cutAt, cardsToDeal);
+		$socket.emit('start', data.roomName, cutAt, cardsToDeal);
+	}
+
+	function packHandler() {
+		$socket.emit('play', true);
 	}
 </script>
 
@@ -33,7 +53,13 @@
 	<script src="/elements.cardmeister.min.js"></script>
 </svelte:head>
 
-<h1>{usernameCreated ? username : ''} Welcome to Room: {data.roomID}</h1>
+<div class="mt-3 flex justify-between">
+	<h1>{usernameCreated ? username : ''} Welcome to Room: {data.roomName}</h1>
+	{#if roomData}
+		<h2 class="text-3xl">Current Pot: {roomData.pot}</h2>
+	{/if}
+</div>
+
 {#if roomData && !roomData.isStarted}
 	<form>
 		<div class="form-control w-full max-w-xs">
@@ -70,7 +96,9 @@
 	</form>
 {/if}
 
-{#if !usernameCreated}
+{#if usernameCreated}
+	<button class="btn btn-ghost" on:click={leaveRoomHandler}>Leave Room</button>
+{:else}
 	<form class="bg-slate-700 flex md:w-96 items-end p-5 rounded-md mt-4 gap-2">
 		<div class="form-control w-full max-w-xs">
 			<label class="label" for="username">
@@ -99,16 +127,52 @@
 					<p>Cards:</p>
 					<ol class="flex gap-2 my-2">
 						{#each user.cardsInHand as card}
-							<card-t class="w-32" rank={card.rank} suit={card.suit} />
+							{#if user.isBlind || user.id != $socket.id}
+								<card-t class="w-32" rank="0" backcolor="green" backtext="" />
+							{:else}
+								<card-t class="w-32" rank={card.rank} suit={card.suit} />
+							{/if}
 						{/each}
 					</ol>
+
 					{#if user.isPacked}
-						<div class="div">packed</div>
+						<div class="div">Packed</div>
 					{:else}
-						<div class="card-actions justify-end">
-							<button class="btn btn-secondary">Blind</button>
-							<button class="btn btn-primary">Chal</button>
-							<button class="btn btn-outline btn-error">Pack</button>
+						<div class="card-actions justify-between items-center">
+							<span class="flex items-center gap-1"
+								><small>Balance:</small> <strong>{user.balance}</strong></span
+							>
+							{#if user.id === $socket.id}
+								<div class="flex gap-2">
+									<button
+										on:click|preventDefault={seeCardsHandler}
+										disabled={!user.isBlind || !myChance}
+										class="btn btn-accent">See</button
+									>
+									<div class="form-control">
+										<div class="input-group">
+											<input
+												bind:value={chal}
+												min="0"
+												max={user.balance}
+												type="number"
+												class="input w-16 input-bordered"
+												disabled={!myChance}
+											/>
+											<button
+												disabled={!myChance}
+												on:click={chalHandler}
+												class="btn btn-square btn-secondary"
+											>
+												{user.isBlind ? 'Blind' : 'Chal'}
+											</button>
+										</div>
+									</div>
+									<button on:click={packHandler} class="btn btn-outline btn-error">Pack</button>
+								</div>
+							{:else}
+								<div>{user.isBlind ? 'Playing Blind' : 'Cards Seen'}</div>
+							{/if}
 						</div>
 					{/if}
 				</div>
