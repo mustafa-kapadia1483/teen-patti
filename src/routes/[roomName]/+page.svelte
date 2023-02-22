@@ -10,8 +10,10 @@
 	let cutAt = 0;
 	let cardsToDeal = 3;
 	let chal = 1;
+	let selectedWinnerID;
 
 	$: myChance = roomData?.usersList[roomData?.currentPlayer].id === $socket.id;
+	$: usersPlaying = roomData?.usersList?.filter(({ isPacked }) => !isPacked);
 
 	function createUserHandler() {
 		console.log(data.roomName);
@@ -21,7 +23,9 @@
 
 	function leaveRoomHandler() {
 		$socket.emit('leaveRoom');
-		goto('create-room');
+		goto('create-room', {
+			replaceState: true
+		});
 	}
 
 	function seeCardsHandler() {
@@ -32,7 +36,18 @@
 		$socket.emit('play', false, chal);
 	}
 
+	function showHandler() {
+		$socket.emit('show', data.roomName);
+	}
+
 	onMount(() => {
+		if ($socket === null) {
+			const newSocket = io(serverURL, {
+				transports: ['websocket']
+			});
+			$socket = newSocket;
+		}
+
 		$socket.on('error', console.log);
 		$socket.on('roomData', (res) => {
 			roomData = { ...roomData, ...res };
@@ -47,6 +62,10 @@
 	function packHandler() {
 		$socket.emit('play', true);
 	}
+
+	// onDestroy(() => {
+	// 	$socket.disconnect('error');
+	// });
 </script>
 
 <svelte:head>
@@ -59,6 +78,23 @@
 		<h2 class="text-3xl">Current Pot: {roomData.pot}</h2>
 	{/if}
 </div>
+
+{#if roomData?.gameShow && $socket?.id === roomData.initiator}
+	<div class="form-control">
+		<div class="input-group">
+			<select bind:value={selectedWinnerID} class="select select-bordered">
+				<option disabled selected>Pick Winner</option>
+				{#each usersPlaying as user}
+					<option value={user.id}>{user.username}</option>
+				{/each}
+			</select>
+			<button
+				on:click={() => $socket.emit('confirmWin', selectedWinnerID, data.roomName)}
+				class="btn">Go</button
+			>
+		</div>
+	</div>
+{/if}
 
 {#if roomData && !roomData.isStarted}
 	<form>
@@ -127,10 +163,12 @@
 					<p>Cards:</p>
 					<ol class="flex gap-2 my-2">
 						{#each user.cardsInHand as card}
-							{#if user.isBlind || user.id != $socket.id}
-								<card-t class="w-32" rank="0" backcolor="green" backtext="" />
-							{:else}
+							<!-- Only show cards when current user is not blind  -->
+							<!-- Only show cards when gameShow is true and current user is not packed (only show cards for last 2 remaining players)  -->
+							{#if (!user.isBlind && user.id === $socket.id) || (roomData.gameShow && !user.isPacked)}
 								<card-t class="w-32" rank={card.rank} suit={card.suit} />
+							{:else}
+								<card-t class="w-32" rank="0" backcolor="green" backtext="" />
 							{/if}
 						{/each}
 					</ol>
@@ -168,7 +206,16 @@
 											</button>
 										</div>
 									</div>
-									<button on:click={packHandler} class="btn btn-outline btn-error">Pack</button>
+									<button
+										disabled={!myChance}
+										on:click={packHandler}
+										class="btn btn-outline btn-error">Pack</button
+									>
+									<button
+										disabled={usersPlaying.length > 2}
+										on:click={showHandler}
+										class="btn btn-success">Show</button
+									>
 								</div>
 							{:else}
 								<div>{user.isBlind ? 'Playing Blind' : 'Cards Seen'}</div>

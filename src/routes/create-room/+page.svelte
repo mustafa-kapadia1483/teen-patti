@@ -27,9 +27,9 @@
 		$socket.on('error', console.log);
 	});
 
-	onDestroy(() => {
-		$socket.off('error');
-	});
+	// onDestroy(() => {
+	// 	$socket.disconnect('error');
+	// });
 </script>
 
 <form>
