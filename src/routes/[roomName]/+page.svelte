@@ -77,7 +77,7 @@
 	<script src="/elements.cardmeister.min.js"></script>
 </svelte:head>
 
-<div class="mt-3 flex justify-between">
+<div class="mt-3 flex flex-col md:flex-row justify-between">
 	<h1>{usernameCreated ? username : ''} Welcome to Room: {data.roomName}</h1>
 	{#if roomData}
 		<h2 class="text-3xl">Current Pot: {roomData.pot}</h2>
@@ -141,6 +141,15 @@
 	<button class="btn btn-ghost" on:click={leaveRoomHandler}>Leave Room</button>
 {:else}
 	<UsernameForm bind:username bind:usernameCreated roomName={data.roomName} />
+{/if}
+
+{#if roomData && !roomData.isStarted}
+	<h2>Users Joined:</h2>
+	<ol class="list-decimal list-inside">
+		{#each roomData.usersList as user}
+			<li>{user.username}</li>
+		{/each}
+	</ol>
 {/if}
 
 {#if roomData?.isStarted}
