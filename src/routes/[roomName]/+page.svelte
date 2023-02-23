@@ -1,7 +1,8 @@
 <script>
 	import { onMount } from 'svelte';
-	import { socket } from '../../stores';
+	import { displayToast, socket } from '../../stores';
 	import { goto } from '$app/navigation';
+	import UsernameForm from './UsernameForm.svelte';
 	export let data;
 
 	let username = '';
@@ -14,12 +15,7 @@
 
 	$: myChance = roomData?.usersList[roomData?.currentPlayer].id === $socket.id;
 	$: usersPlaying = roomData?.usersList?.filter(({ isPacked }) => !isPacked);
-
-	function createUserHandler() {
-		console.log(data.roomName);
-		$socket.emit('joinRoom', username, data.roomName);
-		usernameCreated = true;
-	}
+	$: console.log({ username, usernameCreated });
 
 	function leaveRoomHandler() {
 		$socket.emit('leaveRoom');
@@ -48,7 +44,18 @@
 			$socket = newSocket;
 		}
 
-		$socket.on('error', console.log);
+		$socket.on('error', ({ message }) => {
+			displayToast(message, 'error');
+		});
+
+		$socket.on('message', ({ text }) => {
+			if (text.includes('won')) {
+				displayToast(text, 'success');
+				return;
+			}
+			displayToast(text, 'info');
+		});
+
 		$socket.on('roomData', (res) => {
 			roomData = { ...roomData, ...res };
 			console.log(res);
@@ -135,93 +142,86 @@
 {#if usernameCreated}
 	<button class="btn btn-ghost" on:click={leaveRoomHandler}>Leave Room</button>
 {:else}
-	<form class="bg-slate-700 flex md:w-96 items-end p-5 rounded-md mt-4 gap-2">
-		<div class="form-control w-full max-w-xs">
-			<label class="label" for="username">
-				<span class="label-text">Username</span>
-			</label>
-			<input
-				bind:value={username}
-				required
-				type="text"
-				id="username"
-				placeholder="Type here"
-				class="input input-bordered w-full max-w-xs"
-			/>
-		</div>
-
-		<button class="btn btn-info" on:click|preventDefault={createUserHandler}> Create User </button>
-	</form>
+	<UsernameForm bind:username bind:usernameCreated roomName={data.roomName} />
 {/if}
 
 {#if roomData?.isStarted}
 	<div class="grid md:grid-cols-3 gap-3">
-		{#each roomData.usersList as user}
-			<div class="card bg-base-100 shadow-xl">
-				<div class="card-body">
-					<div class="card-title">{user.username}</div>
-					<p>Cards:</p>
-					<ol class="flex gap-2 my-2">
-						{#each user.cardsInHand as card}
-							<!-- Only show cards when current user is not blind  -->
-							<!-- Only show cards when gameShow is true and current user is not packed (only show cards for last 2 remaining players)  -->
-							{#if (!user.isBlind && user.id === $socket.id) || (roomData.gameShow && !user.isPacked)}
-								<card-t class="w-32" rank={card.rank} suit={card.suit} />
-							{:else}
-								<card-t class="w-32" rank="0" backcolor="green" backtext="" />
-							{/if}
-						{/each}
-					</ol>
-
-					{#if user.isPacked}
-						<div class="div">Packed</div>
-					{:else}
-						<div class="card-actions justify-between items-center">
+		{#each roomData.usersList as user, userIndex}
+			<div class="indicator">
+				{#if userIndex === roomData.currentPlayer}
+					<span class="indicator-item indicator-top indicator-center badge badge-secondary"
+						>playing…</span
+					>
+				{/if}
+				<div
+					class="card bg-base-100 shadow-xl"
+					class:card-bordered={userIndex === roomData.currentPlayer}
+					class:bg-base-300={userIndex === roomData.currentPlayer}
+				>
+					<div class="card-body">
+						<div class="card-title">{user.username}</div>
+						<div class="flex justify-between">
+							<span>Cards:</span>
 							<span class="flex items-center gap-1"
 								><small>Balance:</small> <strong>{user.balance}</strong></span
 							>
-							{#if user.id === $socket.id}
-								<div class="flex gap-2">
-									<button
-										on:click|preventDefault={seeCardsHandler}
-										disabled={!user.isBlind || !myChance}
-										class="btn btn-accent">See</button
-									>
-									<div class="form-control">
-										<div class="input-group">
-											<input
-												bind:value={chal}
-												min="0"
-												max={user.balance}
-												type="number"
-												class="input w-16 input-bordered"
-												disabled={!myChance}
-											/>
-											<button
-												disabled={!myChance}
-												on:click={chalHandler}
-												class="btn btn-square btn-secondary"
-											>
-												{user.isBlind ? 'Blind' : 'Chal'}
-											</button>
-										</div>
-									</div>
-									<button
-										disabled={!myChance}
-										on:click={packHandler}
-										class="btn btn-outline btn-error">Pack</button
-									>
-									<button
-										disabled={usersPlaying.length > 2}
-										on:click={showHandler}
-										class="btn btn-success">Show</button
-									>
-								</div>
-							{:else}
-								<div>{user.isBlind ? 'Playing Blind' : 'Cards Seen'}</div>
-							{/if}
 						</div>
-					{/if}
+						<ol class="flex gap-2 my-2">
+							{#each user.cardsInHand as card}
+								<!-- Only show cards when current user is not blind  -->
+								<!-- Only show cards when gameShow is true and current user is not packed (only show cards for last 2 remaining players)  -->
+								{#if (!user.isBlind && user.id === $socket.id) || (roomData.gameShow && !user.isPacked)}
+									<card-t class="w-32" rank={card.rank} suit={card.suit} />
+								{:else}
+									<card-t class="w-32" rank="0" backcolor="green" backtext="" />
+								{/if}
+							{/each}
+						</ol>
+
+						{#if user.isPacked}
+							<div class="div">Packed</div>
+						{:else if user.id === $socket.id}
+							<div class="flex gap-2 justify-end">
+								<button
+									on:click|preventDefault={seeCardsHandler}
+									disabled={!user.isBlind || !myChance}
+									class="btn btn-accent">See</button
+								>
+								<div class="form-control">
+									<div class="input-group">
+										<input
+											bind:value={chal}
+											min="1"
+											max={user.balance}
+											type="number"
+											class="input w-16 input-bordered"
+											disabled={!myChance}
+										/>
+										<button
+											disabled={!myChance}
+											on:click={chalHandler}
+											class="btn btn-square btn-secondary"
+										>
+											{user.isBlind ? 'Blind' : 'Chal'}
+										</button>
+									</div>
+								</div>
+								<button
+									disabled={!myChance}
+									on:click={packHandler}
+									class="btn btn-outline btn-error">Pack</button
+								>
+								<button
+									disabled={usersPlaying.length > 2 || !myChance}
+									on:click={showHandler}
+									class="btn btn-success">Show</button
+								>
+							</div>
+						{:else}
+							<div>{user.isBlind ? 'Playing Blind' : 'Cards Seen'}</div>
+						{/if}
+					</div>
 				</div>
 			</div>
 		{/each}
