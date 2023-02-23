@@ -8,7 +8,12 @@
 		<a class="normal-case text-xl" href="/">Teen Patti</a>
 	</div>
 	<div class="navbar-end">
-		<a class="mr-4 link link-hover" href="/">Github</a>
+		<a
+			class="mr-4 link link-hover"
+			href="https://github.com/mustafa-kapadia1483/teen-patti"
+			target="_blank"
+			rel="noreferrer">Github</a
+		>
 		<a href="/create-room" class="btn btn-primary">Join / Create Room</a>
 	</div>
 </nav>
