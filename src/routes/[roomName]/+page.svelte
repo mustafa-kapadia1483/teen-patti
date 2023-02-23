@@ -148,14 +148,14 @@
 {#if roomData?.isStarted}
 	<div class="grid md:grid-cols-3 gap-3">
 		{#each roomData.usersList as user, userIndex}
-			<div class="indicator">
+			<div class="indicator w-full">
 				{#if userIndex === roomData.currentPlayer}
 					<span class="indicator-item indicator-top indicator-center badge badge-secondary"
 						>playing…</span
 					>
 				{/if}
 				<div
-					class="card bg-base-100 shadow-xl"
+					class="card bg-base-100 shadow-xl w-full"
 					class:card-bordered={userIndex === roomData.currentPlayer}
 					class:bg-base-300={userIndex === roomData.currentPlayer}
 				>
@@ -167,14 +167,14 @@
 								><small>Balance:</small> <strong>{user.balance}</strong></span
 							>
 						</div>
-						<ol class="flex gap-2 my-2">
+						<ol class="flex gap-2 my-2 justify-center">
 							{#each user.cardsInHand as card}
 								<!-- Only show cards when current user is not blind  -->
 								<!-- Only show cards when gameShow is true and current user is not packed (only show cards for last 2 remaining players)  -->
 								{#if (!user.isBlind && user.id === $socket.id) || (roomData.gameShow && !user.isPacked)}
 									<card-t class="w-32" rank={card.rank} suit={card.suit} />
 								{:else}
-									<card-t class="w-32" rank="0" backcolor="green" backtext="" />
+									<card-t class="w-32" rank="0" backcolor="green" backtext=" " />
 								{/if}
 							{/each}
 						</ol>
