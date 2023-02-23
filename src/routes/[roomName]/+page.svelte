@@ -15,7 +15,6 @@
 
 	$: myChance = roomData?.usersList[roomData?.currentPlayer].id === $socket.id;
 	$: usersPlaying = roomData?.usersList?.filter(({ isPacked }) => !isPacked);
-	$: console.log({ username, usernameCreated });
 
 	function leaveRoomHandler() {
 		$socket.emit('leaveRoom');
@@ -58,7 +57,6 @@
 
 		$socket.on('roomData', (res) => {
 			roomData = { ...roomData, ...res };
-			console.log(res);
 		});
 	});
 

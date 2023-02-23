@@ -1,16 +1,19 @@
 <!-- Input for create room -->
 <script>
 	import { goto } from '$app/navigation';
-	import { socket } from '../../stores';
+	import { displayToast, socket } from '../../stores';
 	import { io } from 'socket.io-client';
 	import { serverURL } from '../../constants';
 	import { onMount } from 'svelte';
 	import { onDestroy } from 'svelte';
 
-	let roomName, table;
+	let roomName,
+		table = 50;
 
 	function createRoomHanlder() {
-		console.log(roomName);
+		if (!roomName) {
+			displayToast('Could not Create Room: Please enter valid room name', 'error');
+		}
 		$socket.emit('createRoom', roomName, table);
 		goto(roomName);
 	}
@@ -24,7 +27,9 @@
 			transports: ['websocket']
 		});
 		$socket = newSocket;
-		$socket.on('error', console.log);
+		$socket.on('error', ({ message }) => {
+			displayToast(message, 'error');
+		});
 	});
 
 	// onDestroy(() => {
@@ -53,6 +58,7 @@
 			<span class="label-text">Table:</span>
 		</label>
 		<input
+			min="50"
 			bind:value={table}
 			id="table"
 			type="number"
