@@ -13,7 +13,7 @@
 	let chal = 1;
 	let selectedWinnerID;
 
-	$: myChance = roomData?.usersList[roomData?.currentPlayer].id === $socket.id;
+	$: myChance = roomData?.usersList[roomData?.currentPlayer].id === $socket?.id;
 	$: usersPlaying = roomData?.usersList?.filter(({ isPacked }) => !isPacked);
 
 	function leaveRoomHandler() {
@@ -73,6 +73,10 @@
 	}
 
 	function packHandler() {
+		const confirmResult = confirm('Do you want to Pack ?');
+		if (!confirmResult) {
+			return;
+		}
 		$socket.emit('play', true);
 	}
 
@@ -161,7 +165,7 @@
 {/if}
 
 {#if roomData?.isStarted}
-	<div class="grid md:grid-cols-3 gap-3">
+	<div class="md:grid md:grid-cols-3 gap-3">
 		{#each roomData.usersList as user, userIndex}
 			<div class="indicator w-full">
 				{#if userIndex === roomData.currentPlayer}
@@ -197,7 +201,7 @@
 						{#if user.isPacked}
 							<div class="div">Packed</div>
 						{:else if user.id === $socket.id}
-							<div class="flex gap-2 justify-end">
+							<div class="flex gap-2 justify-end flex-wrap">
 								<button
 									on:click|preventDefault={seeCardsHandler}
 									disabled={!user.isBlind || !myChance}
