@@ -211,7 +211,7 @@
 									<div class="input-group">
 										<input
 											bind:value={chal}
-											min="1"
+											min={roomData?.maxStake / (user.isBlind ? 2 : 1)}
 											max={user.balance}
 											type="number"
 											class="input w-16 input-bordered"

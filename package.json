@@ -26,6 +26,7 @@
 	"type": "module",
 	"dependencies": {
 		"daisyui": "^2.50.1",
-		"socket.io-client": "^4.6.0"
+		"socket.io-client": "^4.6.0",
+		"socket.io-msgpack-parser": "^3.0.2"
 	}
 }

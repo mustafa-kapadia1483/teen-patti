@@ -5,6 +5,7 @@
 	import { io } from 'socket.io-client';
 	import { serverURL } from '../../constants';
 	import { onMount } from 'svelte';
+	import customParser from 'socket.io-msgpack-parser';
 	import { onDestroy } from 'svelte';
 
 	let roomName,
@@ -23,8 +24,10 @@
 	}
 
 	onMount(() => {
+		console.log(serverURL);
 		const newSocket = io(serverURL, {
-			transports: ['websocket']
+			parser: customParser,
+			transports: ['websocket', 'polling']
 		});
 		$socket = newSocket;
 		$socket.on('error', ({ message }) => {
