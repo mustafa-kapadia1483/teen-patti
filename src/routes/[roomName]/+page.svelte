@@ -57,6 +57,7 @@
 
 		$socket.on('roomData', (res) => {
 			roomData = { ...roomData, ...res };
+			console.log(roomData);
 		});
 
 		$socket.on('disconnect', (reason) => {
@@ -78,6 +79,11 @@
 			return;
 		}
 		$socket.emit('play', true);
+	}
+
+	function setChal(user) {
+		chal = roomData?.maxStake / (user.isBlind ? 2 : 1) || 1;
+		return '';
 	}
 
 	// onDestroy(() => {
@@ -156,12 +162,30 @@
 {/if}
 
 {#if roomData && !roomData.isStarted}
-	<h2>Users Joined:</h2>
-	<ol class="list-decimal list-inside">
-		{#each roomData.usersList as user}
-			<li>{user.username}</li>
-		{/each}
-	</ol>
+	<div class="overflow-x-auto">
+		<h2>Users Table:</h2>
+		<table class="table">
+			<!-- head -->
+			<thead>
+				<tr>
+					<th />
+					<th>Username</th>
+					<th>Balance</th>
+					<th>Gain / Lost</th>
+				</tr>
+			</thead>
+			<tbody>
+				{#each roomData.usersList as user, i}
+					<tr>
+						<td>{i + 1}</td>
+						<td>{user.username}</td>
+						<td>{user.balance}</td>
+						<td>{user.balance - roomData.table}</td>
+					</tr>
+				{/each}
+			</tbody>
+		</table>
+	</div>
 {/if}
 
 {#if roomData?.isStarted}
@@ -204,11 +228,12 @@
 							<div class="flex gap-2 justify-end flex-wrap">
 								<button
 									on:click|preventDefault={seeCardsHandler}
-									disabled={!user.isBlind || !myChance}
+									disabled={!user.isBlind}
 									class="btn btn-accent">See</button
 								>
 								<div class="form-control">
 									<div class="input-group">
+										{setChal(user)}
 										<input
 											bind:value={chal}
 											min={roomData?.maxStake / (user.isBlind ? 2 : 1)}
