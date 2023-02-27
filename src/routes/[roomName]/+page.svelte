@@ -1,8 +1,9 @@
 <script>
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import { displayToast, socket } from '../../stores';
 	import { goto } from '$app/navigation';
 	import UsernameForm from './UsernameForm.svelte';
+	import UsersTable from './UsersTable.svelte';
 	export let data;
 
 	let username = '';
@@ -82,13 +83,14 @@
 	}
 
 	function setChal(user) {
-		chal = roomData?.maxStake / (user.isBlind ? 2 : 1) || 1;
+		chal = roomData?.maxStake / (user.isBlind ? 2 : 1);
+		if (chal < 1) chal = 1;
 		return '';
 	}
 
-	// onDestroy(() => {
-	// 	$socket.disconnect('error');
-	// });
+	onDestroy(() => {
+		$socket.disconnect();
+	});
 </script>
 
 <svelte:head>
@@ -162,30 +164,7 @@
 {/if}
 
 {#if roomData && !roomData.isStarted}
-	<div class="overflow-x-auto">
-		<h2>Users Table:</h2>
-		<table class="table">
-			<!-- head -->
-			<thead>
-				<tr>
-					<th />
-					<th>Username</th>
-					<th>Balance</th>
-					<th>Gain / Lost</th>
-				</tr>
-			</thead>
-			<tbody>
-				{#each roomData.usersList as user, i}
-					<tr>
-						<td>{i + 1}</td>
-						<td>{user.username}</td>
-						<td>{user.balance}</td>
-						<td>{user.balance - roomData.table}</td>
-					</tr>
-				{/each}
-			</tbody>
-		</table>
-	</div>
+	<UsersTable usersList={roomData.usersList} table={roomData.table} />
 {/if}
 
 {#if roomData?.isStarted}
