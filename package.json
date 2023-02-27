@@ -11,22 +11,22 @@
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^2.0.0",
-		"@sveltejs/kit": "^1.5.0",
+		"@sveltejs/kit": "^1.8.5",
 		"autoprefixer": "^10.4.13",
-		"eslint": "^8.28.0",
-		"eslint-config-prettier": "^8.5.0",
+		"eslint": "^8.35.0",
+		"eslint-config-prettier": "^8.6.0",
 		"eslint-plugin-svelte3": "^4.0.0",
 		"postcss": "^8.4.21",
-		"prettier": "^2.8.0",
-		"prettier-plugin-svelte": "^2.8.1",
-		"svelte": "^3.54.0",
-		"tailwindcss": "^3.2.6",
-		"vite": "^4.0.0"
+		"prettier": "^2.8.4",
+		"prettier-plugin-svelte": "^2.9.0",
+		"svelte": "^3.55.1",
+		"tailwindcss": "^3.2.7",
+		"vite": "^4.1.4"
 	},
 	"type": "module",
 	"dependencies": {
-		"daisyui": "^2.50.1",
-		"socket.io-client": "^4.6.0",
+		"daisyui": "^2.51.1",
+		"socket.io-client": "^4.6.1",
 		"socket.io-msgpack-parser": "^3.0.2"
 	}
 }
