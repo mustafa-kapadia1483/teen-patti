@@ -1,7 +1,10 @@
 <script>
 	import '../app.css';
 	import { toastQueue } from '../stores';
+	import GoogleAnalytics from './GoogleAnalytics.svelte';
 </script>
+
+<GoogleAnalytics />
 
 <nav class="container mx-auto navbar bg-base-100">
 	<div class="navbar-start">
