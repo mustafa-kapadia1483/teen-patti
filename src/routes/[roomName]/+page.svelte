@@ -1,6 +1,7 @@
 <script>
 	import { onDestroy, onMount } from 'svelte';
-	import { displayToast, socket } from '../../stores';
+	import { socket } from '../../stores';
+	import { displayToast } from '$lib/components/Toasts';
 	import { goto } from '$app/navigation';
 	import UsernameForm from './UsernameForm.svelte';
 	import UsersTable from './UsersTable.svelte';

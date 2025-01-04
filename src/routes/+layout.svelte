@@ -1,6 +1,6 @@
 <script>
 	import '../app.css';
-	import { toastQueue } from '../stores';
+	import { Toasts } from '$lib/components/Toasts';
 	import GoogleAnalytics from './GoogleAnalytics.svelte';
 </script>
 
@@ -23,18 +23,5 @@
 
 <main class="container mx-auto px-2">
 	<slot />
-	<div class="toast">
-		{#each $toastQueue as { message, type }}
-			<div
-				class="alert"
-				class:alert-error={type === 'error'}
-				class:alert-info={type === 'info'}
-				class:alert-success={type === 'success'}
-			>
-				<div>
-					<span>{message}</span>
-				</div>
-			</div>
-		{/each}
-	</div>
+	<Toasts />
 </main>
