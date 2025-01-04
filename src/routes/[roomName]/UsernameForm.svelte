@@ -1,13 +1,20 @@
 <script>
 	import { socket } from '../../stores';
+	import { displayToast } from '$lib/components/Toasts';
 
 	export let username;
 	export let usernameCreated = false;
 	export let roomName;
 
 	function createUserHandler() {
-		usernameCreated = true;
+		if (!username) {
+			displayToast('Could not Create User: Please enter valid username', 'error');
+			return;
+		}
 		$socket.emit('joinRoom', username, roomName);
+		$socket.on('message', ({ text }) => {
+			usernameCreated = true;
+		});
 	}
 </script>
 

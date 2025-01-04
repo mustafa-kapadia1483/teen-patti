@@ -7,7 +7,6 @@
 	import { serverURL } from '../../constants';
 	import { onMount } from 'svelte';
 	import customParser from 'socket.io-msgpack-parser';
-	import { onDestroy } from 'svelte';
 
 	let roomName,
 		table = 50;
@@ -15,8 +14,21 @@
 	function createRoomHanlder() {
 		if (!roomName) {
 			displayToast('Could not Create Room: Please enter valid room name', 'error');
+			return;
 		}
 		$socket.emit('createRoom', roomName, table);
+		$socket.on('message', ({ text }) => {
+			displayToast(text, 'success');
+			goto(roomName);
+		});
+	}
+
+	function joinRoomHandler() {
+		if (!roomName) {
+			displayToast('Could not Join Room: Please enter valid room name', 'error');
+			return;
+		}
+		$socket.emit('joinRoom', roomName);
 		$socket.on('message', ({ text }) => {
 			displayToast(text, 'success');
 			goto(roomName);
@@ -38,10 +50,6 @@
 			displayToast(message, 'error');
 		});
 	});
-
-	// onDestroy(() => {
-	// 	$socket.disconnect('error');
-	// });
 </script>
 
 <form>
@@ -57,7 +65,7 @@
 				placeholder="Enter Room Name"
 				class="input input-bordered w-full max-w-xs"
 			/>
-			<button on:click|preventDefault={() => goto(roomName)} class="btn btn-square"> Join </button>
+			<button on:click|preventDefault={joinRoomHandler} class="btn btn-square"> Join </button>
 		</div>
 	</div>
 	<div class="form-control w-full max-w-xs">
