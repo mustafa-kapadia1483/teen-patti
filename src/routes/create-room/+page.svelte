@@ -28,11 +28,7 @@
 			displayToast('Could not Join Room: Please enter valid room name', 'error');
 			return;
 		}
-		$socket.emit('joinRoom', roomName);
-		$socket.on('message', ({ text }) => {
-			displayToast(text, 'success');
-			goto(roomName);
-		});
+		goto(roomName);
 	}
 
 	$: {

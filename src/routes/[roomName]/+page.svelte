@@ -1,6 +1,9 @@
 <script>
 	import { onDestroy, onMount } from 'svelte';
 	import { socket } from '../../stores';
+	import { io } from 'socket.io-client';
+	import customParser from 'socket.io-msgpack-parser';
+	import { serverURL } from '../../constants';
 	import { displayToast } from '$lib/components/Toasts';
 	import { goto } from '$app/navigation';
 	import UsernameForm from './UsernameForm.svelte';
@@ -40,7 +43,8 @@
 	onMount(() => {
 		if ($socket === null) {
 			const newSocket = io(serverURL, {
-				transports: ['websocket']
+				parser: customParser,
+			transports: ['websocket', 'polling']
 			});
 			$socket = newSocket;
 		}
@@ -89,9 +93,9 @@
 		return '';
 	}
 
-	onDestroy(() => {
-		$socket.disconnect();
-	});
+	// onDestroy(() => {
+	// 	$socket.disconnect();
+	// });
 </script>
 
 <svelte:head>
