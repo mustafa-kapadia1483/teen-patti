@@ -1,12 +1,9 @@
 <!-- Input for create room -->
 <script>
 	import { goto } from '$app/navigation';
-	import { socket } from '../../stores';
+	import { socket, setSocketConnection } from '$lib/stores/socket-store';
 	import { displayToast } from '$lib/components/Toasts';
-	import { io } from 'socket.io-client';
-	import { serverURL } from '../../constants';
-	import { onMount } from 'svelte';
-	import customParser from 'socket.io-msgpack-parser';
+	import { validateRoomAccess } from '$lib/utils/room';
 
 	let roomName,
 		table = 50;
@@ -16,36 +13,38 @@
 			displayToast('Could not Create Room: Please enter valid room name', 'error');
 			return;
 		}
+		setSocketConnection();
+
 		$socket.emit('createRoom', roomName, table);
-		$socket.on('message', ({ text }) => {
+		
+		$socket.once('message', ({ text }) => {
 			displayToast(text, 'success');
 			goto(roomName);
 		});
+		
+		$socket.once('error', ({ message }) => {
+			displayToast(message, 'error');
+		});
 	}
 
-	function joinRoomHandler() {
+	async function joinRoomHandler() {
 		if (!roomName) {
 			displayToast('Could not Join Room: Please enter valid room name', 'error');
 			return;
 		}
+
+		const roomAcess = await validateRoomAccess(roomName);
+		if (roomAcess.hasOwnProperty('error')) {
+			displayToast(roomAcess.error, 'error');
+			return;
+		}
+
 		goto(roomName);
 	}
 
 	$: {
 		roomName = roomName?.toLowerCase().trim();
 	}
-
-	onMount(() => {
-		console.log(serverURL);
-		const newSocket = io(serverURL, {
-			parser: customParser,
-			transports: ['websocket', 'polling']
-		});
-		$socket = newSocket;
-		$socket.on('error', ({ message }) => {
-			displayToast(message, 'error');
-		});
-	});
 </script>
 
 <form>

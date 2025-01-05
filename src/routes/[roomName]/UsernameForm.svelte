@@ -1,5 +1,5 @@
 <script>
-	import { socket } from '../../stores';
+	import { socket } from '$lib/stores/socket-store';
 	import { displayToast } from '$lib/components/Toasts';
 
 	export let username;
@@ -12,8 +12,12 @@
 			return;
 		}
 		$socket.emit('joinRoom', username, roomName);
-		$socket.on('message', ({ text }) => {
+		$socket.once('message', ({ text }) => {
 			usernameCreated = true;
+		});
+
+		$socket.once('error', ({ message }) => {
+			displayToast(message, 'error');
 		});
 	}
 </script>

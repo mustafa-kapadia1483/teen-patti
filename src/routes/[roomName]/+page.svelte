@@ -1,9 +1,6 @@
 <script>
-	import { onDestroy, onMount } from 'svelte';
-	import { socket } from '../../stores';
-	import { io } from 'socket.io-client';
-	import customParser from 'socket.io-msgpack-parser';
-	import { serverURL } from '../../constants';
+	import { onMount } from 'svelte';
+	import { socket, setSocketConnection } from '$lib/stores/socket-store';
 	import { displayToast } from '$lib/components/Toasts';
 	import { goto } from '$app/navigation';
 	import UsernameForm from './UsernameForm.svelte';
@@ -18,14 +15,12 @@
 	let chal = 1;
 	let selectedWinnerID;
 
-	$: myChance = roomData?.usersList[roomData?.currentPlayer].id === $socket?.id;
+	$: myChance = roomData?.usersList[roomData?.currentPlayer]?.id === $socket?.id;
 	$: usersPlaying = roomData?.usersList?.filter(({ isPacked }) => !isPacked);
 
 	function leaveRoomHandler() {
 		$socket.emit('leaveRoom');
-		goto('create-room', {
-			replaceState: true
-		});
+		goto('create-room');
 	}
 
 	function seeCardsHandler() {
@@ -42,11 +37,7 @@
 
 	onMount(() => {
 		if ($socket === null) {
-			const newSocket = io(serverURL, {
-				parser: customParser,
-			transports: ['websocket', 'polling']
-			});
-			$socket = newSocket;
+			setSocketConnection();
 		}
 
 		$socket.on('error', ({ message }) => {
@@ -92,19 +83,15 @@
 		if (chal < 1) chal = 1;
 		return '';
 	}
-
-	// onDestroy(() => {
-	// 	$socket.disconnect();
-	// });
 </script>
 
 <svelte:head>
 	<script src="/elements.cardmeister.min.js"></script>
 </svelte:head>
 
-<div class="mt-3 flex flex-col md:flex-row justify-between">
+<div class="mt-3 md:flex md:flex-row justify-between">
 	<h1>{usernameCreated ? username : ''} Welcome to Room: {data.roomName}</h1>
-	{#if roomData}
+	{#if roomData?.isStarted}
 		<h2 class="text-3xl">Current Pot: {roomData.pot}</h2>
 	{/if}
 </div>
@@ -173,7 +160,7 @@
 {/if}
 
 {#if roomData?.isStarted}
-	<div class="md:grid md:grid-cols-3 gap-3">
+	<div class="space-y-8 md:grid md:grid-cols-3 md:gap-3 md:space-y-0">
 		{#each roomData.usersList as user, userIndex}
 			<div class="indicator w-full">
 				{#if userIndex === roomData.currentPlayer}
@@ -207,7 +194,9 @@
 						</ol>
 
 						{#if user.isPacked}
-							<div class="div">Packed</div>
+							<p>Packed</p>
+						{:else if roomData?.gameShow}
+							<p>Show Called</p>
 						{:else if user.id === $socket.id}
 							<div class="flex gap-2 justify-end flex-wrap">
 								<button
