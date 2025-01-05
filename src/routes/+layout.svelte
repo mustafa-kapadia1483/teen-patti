@@ -1,7 +1,7 @@
 <script>
 	import '../app.css';
 	import { Toasts } from '$lib/components/Toasts';
-	import GoogleAnalytics from './GoogleAnalytics.svelte';
+	import GoogleAnalytics from '$lib/components/GoogleAnalytics.svelte';
 </script>
 
 <GoogleAnalytics />
