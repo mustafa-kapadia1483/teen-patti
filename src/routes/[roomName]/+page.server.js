@@ -7,9 +7,9 @@ export async function load({ params }) {
 	const roomData = await validateRoomAccess(roomName);
 
 	if (roomData.hasOwnProperty('error')) {
-		throw error(roomData.status, {
-			message: roomData.error
-		});
+		error(roomData.status, {
+        			message: roomData.error
+        		});
 	}
 
 	return {
