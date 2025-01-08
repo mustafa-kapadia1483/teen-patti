@@ -3,9 +3,9 @@
 	let { table, usersList } = $props();
 </script>
 
-<div class="overflow-x-auto">
-	<h2>Users Table:</h2>
-	<table class="table">
+<div class="overflow-x-auto max-w-fit">
+	<h2>Players Table:</h2>
+	<table class="table table-zebra">
 		<!-- head -->
 		<thead>
 			<tr>
@@ -17,7 +17,7 @@
 		</thead>
 		<tbody>
 			{#each usersList as user, i}
-				<tr>
+				<tr class="hover">
 					<td>{i + 1}</td>
 					<td>{user.username}</td>
 					<td>{user.balance}</td>

@@ -1,13 +1,12 @@
 <script>
-	import { preventDefault } from 'svelte/legacy';
-
 	import { socket } from '$lib/stores/socket-store';
 	import { displayToast } from '$lib/components/Toasts';
 
 	/** @type {{username: string, usernameCreated?: boolean, roomName: string}} */
 	let { username = $bindable(), usernameCreated = $bindable(false), roomName } = $props();
 
-	function createUserHandler() {
+	function createUserHandler(e) {
+		e.preventDefault();
 		if (!username) {
 			displayToast('Could not Create User: Please enter valid username', 'error');
 			return;
@@ -38,5 +37,5 @@
 		/>
 	</div>
 
-	<button class="btn btn-info" onclick={preventDefault(createUserHandler)}> Create User </button>
+	<button class="btn btn-info" onclick={createUserHandler}> Create User </button>
 </form>

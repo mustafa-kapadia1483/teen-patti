@@ -1,9 +1,10 @@
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
 	content: ['./src/**/*.{html,js,svelte,ts}'],
-	darkMode: 'media',
+
 	theme: {
 		extend: {}
 	},
+
 	plugins: [require('daisyui')]
 };
