@@ -1,6 +1,6 @@
 <script>
-	export let table;
-	export let usersList;
+	/** @type {{table: any, usersList: any}} */
+	let { table, usersList } = $props();
 </script>
 
 <div class="overflow-x-auto">
@@ -9,7 +9,7 @@
 		<!-- head -->
 		<thead>
 			<tr>
-				<th />
+				<th>Sr.</th>
 				<th>Username</th>
 				<th>Balance</th>
 				<th>Gain / Lost</th>

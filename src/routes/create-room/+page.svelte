@@ -1,12 +1,14 @@
 <!-- Input for create room -->
 <script>
+	import { run, preventDefault } from 'svelte/legacy';
+
 	import { goto } from '$app/navigation';
 	import { socket, setSocketConnection } from '$lib/stores/socket-store';
 	import { displayToast } from '$lib/components/Toasts';
 	import { validateRoomAccess } from '$lib/utils/room';
 
-	let roomName,
-		table = 50;
+	let roomName = $state(),
+		table = $state(50);
 
 	function createRoomHanlder() {
 		if (!roomName) {
@@ -42,9 +44,9 @@
 		goto(roomName);
 	}
 
-	$: {
+	run(() => {
 		roomName = roomName?.toLowerCase().trim();
-	}
+	});
 </script>
 
 <form>
@@ -60,7 +62,7 @@
 				placeholder="Enter Room Name"
 				class="input input-bordered w-full max-w-xs"
 			/>
-			<button on:click|preventDefault={joinRoomHandler} class="btn btn-square"> Join </button>
+			<button onclick={preventDefault(joinRoomHandler)} class="btn btn-square"> Join </button>
 		</div>
 	</div>
 	<div class="form-control w-full max-w-xs">
@@ -77,7 +79,7 @@
 		/>
 	</div>
 
-	<button class="mt-4 btn btn-info" on:click|preventDefault={createRoomHanlder}>
+	<button class="mt-4 btn btn-info" onclick={preventDefault(createRoomHanlder)}>
 		Create Room
 	</button>
 </form>

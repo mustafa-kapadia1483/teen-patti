@@ -1,22 +1,26 @@
 <script>
+	import { preventDefault } from 'svelte/legacy';
+
 	import { onMount } from 'svelte';
 	import { socket, setSocketConnection } from '$lib/stores/socket-store';
 	import { displayToast } from '$lib/components/Toasts';
 	import { goto } from '$app/navigation';
 	import UsernameForm from './UsernameForm.svelte';
 	import UsersTable from './UsersTable.svelte';
-	export let data;
+	
+	let { data } = $props();
 
-	let username = '';
-	let usernameCreated = false;
-	let roomData = null;
-	let cutAt = 0;
-	let cardsToDeal = 3;
-	let chal = 1;
-	let selectedWinnerID;
+	let username = $state('');
+	let usernameCreated = $state(false);
+	let roomData = $state(null);
+	let cutAt = $state(0);
+	let cardsToDeal = $state(3);
+	let selectedWinnerID = $state();
+	let chal = $state(1);
 
-	$: myChance = roomData?.usersList[roomData?.currentPlayer]?.id === $socket?.id;
-	$: usersPlaying = roomData?.usersList?.filter(({ isPacked }) => !isPacked);
+	let myChance = $derived(roomData?.usersList[roomData?.currentPlayer]?.id === $socket?.id);
+	let usersPlaying = $derived(roomData?.usersList?.filter(({ isPacked }) => !isPacked));
+	const currentPlayerIsBlind = $derived(roomData?.usersList[roomData?.currentPlayer]?.isBlind);
 
 	function leaveRoomHandler() {
 		$socket.emit('leaveRoom');
@@ -25,6 +29,7 @@
 
 	function seeCardsHandler() {
 		$socket.emit('seeCards');
+		chal = roomData?.maxStake; 
 	}
 
 	function chalHandler() {
@@ -54,6 +59,8 @@
 
 		$socket.on('roomData', (res) => {
 			roomData = { ...roomData, ...res };
+			// Whenever the roomData changes, reset the chal based on the current player's blind status
+			chal = Math.ceil(roomData?.maxStake / (currentPlayerIsBlind ? 2 : 1));
 		});
 
 		$socket.on('disconnect', (reason) => {
@@ -65,7 +72,8 @@
 		});
 	});
 
-	function startGameHandler() {
+	function startGameHandler(e) {
+		e.preventDefault();
 		$socket.emit('start', data.roomName, cutAt, cardsToDeal);
 	}
 
@@ -75,12 +83,6 @@
 			return;
 		}
 		$socket.emit('play', true);
-	}
-
-	function setChal(user) {
-		chal = roomData?.maxStake / (user.isBlind ? 2 : 1);
-		if (chal < 1) chal = 1;
-		return '';
 	}
 </script>
 
@@ -105,7 +107,7 @@
 				{/each}
 			</select>
 			<button
-				on:click={() => $socket.emit('confirmWin', selectedWinnerID, data.roomName)}
+				onclick={() => $socket.emit('confirmWin', selectedWinnerID, data.roomName)}
 				class="btn">Go</button
 			>
 		</div>
@@ -144,12 +146,12 @@
 				class="input input-bordered w-full max-w-xs"
 			/>
 		</div>
-		<button class="btn" on:click|preventDefault={startGameHandler}>Start Game</button>
+		<button class="btn" onclick={startGameHandler}>Start Game</button>
 	</form>
 {/if}
 
 {#if usernameCreated}
-	<button class="btn btn-ghost" on:click={leaveRoomHandler}>Leave Room</button>
+	<button class="btn btn-ghost" onclick={leaveRoomHandler}>Leave Room</button>
 {:else}
 	<UsernameForm bind:username bind:usernameCreated roomName={data.roomName} />
 {/if}
@@ -185,9 +187,9 @@
 								<!-- Only show cards when current user is not blind  -->
 								<!-- Only show cards when gameShow is true and current user is not packed (only show cards for last 2 remaining players)  -->
 								{#if (!user.isBlind && user.id === $socket.id) || (roomData.gameShow && !user.isPacked)}
-									<card-t class="w-32" rank={card.rank} suit={card.suit} />
+									<card-t class="w-32" rank={card.rank} suit={card.suit}></card-t>
 								{:else}
-									<card-t class="w-32" rank="0" backcolor="green" backtext=" " />
+									<card-t class="w-32" rank="0" backcolor="green" backtext=" "></card-t>
 								{/if}
 							{/each}
 						</ol>
@@ -199,13 +201,13 @@
 						{:else if user.id === $socket.id}
 							<div class="flex gap-2 justify-end flex-wrap">
 								<button
-									on:click|preventDefault={seeCardsHandler}
+									onclick={preventDefault(seeCardsHandler)}
 									disabled={!user.isBlind}
 									class="btn btn-accent">See</button
 								>
+								{#if myChance}
 								<div class="form-control">
 									<div class="input-group">
-										{setChal(user)}
 										<input
 											bind:value={chal}
 											min={roomData?.maxStake / (user.isBlind ? 2 : 1)}
@@ -216,7 +218,7 @@
 										/>
 										<button
 											disabled={!myChance}
-											on:click={chalHandler}
+											onclick={chalHandler}
 											class="btn btn-square btn-secondary"
 										>
 											{user.isBlind ? 'Blind' : 'Chal'}
@@ -225,14 +227,15 @@
 								</div>
 								<button
 									disabled={!myChance}
-									on:click={packHandler}
+									onclick={packHandler}
 									class="btn btn-outline btn-error">Pack</button
 								>
 								<button
 									disabled={usersPlaying.length > 2 || !myChance}
-									on:click={showHandler}
+									onclick={showHandler}
 									class="btn btn-success">Show</button
 								>
+								{/if}
 							</div>
 						{:else}
 							<div>{user.isBlind ? 'Playing Blind' : 'Cards Seen'}</div>

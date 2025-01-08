@@ -1,10 +1,11 @@
 <script>
+	import { preventDefault } from 'svelte/legacy';
+
 	import { socket } from '$lib/stores/socket-store';
 	import { displayToast } from '$lib/components/Toasts';
 
-	export let username;
-	export let usernameCreated = false;
-	export let roomName;
+	/** @type {{username: string, usernameCreated?: boolean, roomName: string}} */
+	let { username = $bindable(), usernameCreated = $bindable(false), roomName } = $props();
 
 	function createUserHandler() {
 		if (!username) {
@@ -37,5 +38,5 @@
 		/>
 	</div>
 
-	<button class="btn btn-info" on:click|preventDefault={createUserHandler}> Create User </button>
+	<button class="btn btn-info" onclick={preventDefault(createUserHandler)}> Create User </button>
 </form>

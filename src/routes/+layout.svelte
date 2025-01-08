@@ -2,6 +2,8 @@
 	import '../app.css';
 	import { Toasts } from '$lib/components/Toasts';
 	import GoogleAnalytics from '$lib/components/GoogleAnalytics.svelte';
+	/** @type {{children?: import('svelte').Snippet}} */
+	let { children } = $props();
 </script>
 
 <GoogleAnalytics />
@@ -22,6 +24,6 @@
 </nav>
 
 <main class="container mx-auto px-2">
-	<slot />
+	{@render children?.()}
 	<Toasts />
 </main>
