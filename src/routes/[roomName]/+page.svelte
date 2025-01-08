@@ -54,7 +54,6 @@
 
 		$socket.on('roomData', (res) => {
 			roomData = { ...roomData, ...res };
-			console.log(roomData);
 		});
 
 		$socket.on('disconnect', (reason) => {
