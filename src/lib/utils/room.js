@@ -1,12 +1,17 @@
 import { serverURL } from '$lib/config';
 
+/**
+ * 
+ * @param {string} roomName 
+ * @returns {{status: 400 | 404 | 500, error: string}}
+ */
 export async function validateRoomAccess(roomName) {
     try {
         const response = await fetch(`${serverURL}/room/${roomName}`);
         
         if (response.status === 404) {
             return {
-                status: response.status,
+                status: 404,
                 error: "Room not found, create room instead"
             };
         }

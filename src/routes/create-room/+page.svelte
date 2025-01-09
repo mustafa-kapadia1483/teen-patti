@@ -1,14 +1,15 @@
 <!-- Input for create room -->
 <script>
-	import { run } from 'svelte/legacy';
-
 	import { goto } from '$app/navigation';
 	import { socket, setSocketConnection } from '$lib/stores/socket-store';
 	import { displayToast } from '$lib/components/Toasts';
 	import { validateRoomAccess } from '$lib/utils/room';
 
-	let roomName = $state(""),
-		table = $state(50);
+	/** @type {string} Room name */
+	let roomName = $state("");
+
+	/** @type {number} Table value */
+	let table = $state(50);
 
 	function createRoomHanlder(e) {
 		e.preventDefault();

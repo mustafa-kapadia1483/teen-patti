@@ -1,5 +1,7 @@
 <script>
-	/** @type {{table: any, usersList: any}} */
+	/** 
+	 * @type {{table: number, usersList: Array<User>}} 
+	 * */
 	let { table, usersList } = $props();
 </script>
 

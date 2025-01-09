@@ -1,8 +1,8 @@
 <script>
-    import { toastQueue } from './stores.js';
+    import { toastQueue } from './stores.svelte.js';
 </script>
 <div class="toast">
-    {#each $toastQueue as { message, type }}
+    {#each toastQueue as { message, type }}
         <div
             class="alert"
             class:alert-error={type === 'error'}

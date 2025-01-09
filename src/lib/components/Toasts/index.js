@@ -1,2 +1,2 @@
 export { default as Toasts } from './Toasts.svelte';
-export { displayToast } from './stores.js'
+export { displayToast } from './stores.svelte.js';

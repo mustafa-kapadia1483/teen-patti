@@ -1,27 +1,40 @@
 <script>
-	import { preventDefault } from 'svelte/legacy';
-
 	import { onMount } from 'svelte';
 	import { socket, setSocketConnection } from '$lib/stores/socket-store';
 	import { displayToast } from '$lib/components/Toasts';
 	import { goto } from '$app/navigation';
 	import UsernameForm from './UsernameForm.svelte';
 	import UsersTable from './UsersTable.svelte';
+	import DeclareWinner from './DeclareWinner.svelte';
+	/** @type {import('./types')} */
 
 	let { data } = $props();
 
+	/** @type {string} */
 	let username = $state('');
+
+	/** @type {boolean} To check whether user has been created and joined the room */
 	let usernameCreated = $state(false);
+
+	/** @type {RoomData|null} */
 	let roomData = $state(null);
+
+	/** @type {number} Value to cut the deck at */
 	let cutAt = $state(0);
+
+	/** @type {number} Number of cards to deal to each player */
 	let cardsToDeal = $state(3);
-	let selectedWinnerID = $state();
+
+	/** @type {string|null} ID of the user who won the round */
+	let selectedWinnerID = $state(null);
+
+	/** @type {$state<number>} Stake / Chal value that player wants to wager */
 	let chal = $state(1);
 
 	let myChance = $derived(roomData?.usersList[roomData?.currentPlayer]?.id === $socket?.id);
 	let usersPlaying = $derived(roomData?.usersList?.filter(({ isPacked }) => !isPacked));
 	const currentPlayerIsBlind = $derived(roomData?.usersList[roomData?.currentPlayer]?.isBlind);
-
+	
 	function leaveRoomHandler() {
 		$socket.emit('leaveRoom');
 		goto('create-room');
@@ -84,6 +97,10 @@
 		}
 		$socket.emit('play', true);
 	}
+
+	function declareWinnerHanlder() {
+		$socket.emit('confirmWin', selectedWinnerID, data.roomName)
+	}
 </script>
 
 <svelte:head>
@@ -102,21 +119,9 @@
 	</div>
 </div>
 
+<!-- Once game ends, show the game initiater the option to select the winner -->
 {#if roomData?.gameShow && $socket?.id === roomData.initiator}
-	<div class="form-control">
-		<div class="input-group">
-			<select bind:value={selectedWinnerID} class="select select-bordered">
-				<option disabled selected>Pick Winner</option>
-				{#each usersPlaying as user}
-					<option value={user.id}>{user.username}</option>
-				{/each}
-			</select>
-			<button
-				onclick={() => $socket.emit('confirmWin', selectedWinnerID, data.roomName)}
-				class="btn">Go</button
-			>
-		</div>
-	</div>
+	<DeclareWinner bind:selectedWinnerID {declareWinnerHanlder} {usersPlaying} />
 {/if}
 
 {#if roomData && !roomData.isStarted}
@@ -204,7 +209,7 @@
 						{:else if user.id === $socket.id}
 							<div class="flex flex-wrap justify-end gap-2">
 								<button
-									onclick={preventDefault(seeCardsHandler)}
+									onclick={seeCardsHandler}
 									disabled={!user.isBlind}
 									class="btn btn-accent">See</button
 								>

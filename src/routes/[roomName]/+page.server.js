@@ -8,8 +8,8 @@ export async function load({ params }) {
 
 	if (roomData.hasOwnProperty('error')) {
 		error(roomData.status, {
-        			message: roomData.error
-        		});
+			message: roomData.error
+		});
 	}
 
 	return {
