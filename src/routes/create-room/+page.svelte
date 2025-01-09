@@ -1,7 +1,7 @@
 <!-- Input for create room -->
 <script>
 	import { goto } from '$app/navigation';
-	import { socket, setSocketConnection } from '$lib/stores/socket-store';
+	import { socket } from '$lib/stores/socket-store.svelte.js';
 	import { displayToast } from '$lib/components/Toasts';
 	import { validateRoomAccess } from '$lib/utils/room';
 
@@ -17,16 +17,18 @@
 			displayToast('Could not Create Room: Please enter valid room name', 'error');
 			return;
 		}
-		setSocketConnection();
+		if(socket.connection === null) {
+			socket.setConnection();
+		}
 
-		$socket.emit('createRoom', roomName, table);
+		socket.connection.emit('createRoom', roomName, table);
 		
-		$socket.once('message', ({ text }) => {
+		socket.connection.once('message', ({ text }) => {
 			displayToast(text, 'success');
 			goto(roomName);
 		});
 		
-		$socket.once('error', ({ message }) => {
+		socket.connection.once('error', ({ message }) => {
 			displayToast(message, 'error');
 		});
 	}

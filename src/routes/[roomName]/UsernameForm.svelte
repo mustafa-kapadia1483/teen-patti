@@ -1,5 +1,5 @@
 <script>
-	import { socket } from '$lib/stores/socket-store';
+	import { socket } from '$lib/stores/socket-store.svelte.js';
 	import { displayToast } from '$lib/components/Toasts';
 
 	/** @type {{username: string, usernameCreated?: boolean, roomName: string}} */
@@ -11,12 +11,12 @@
 			displayToast('Could not Create User: Please enter valid username', 'error');
 			return;
 		}
-		$socket.emit('joinRoom', username, roomName);
-		$socket.once('message', ({ text }) => {
+		socket.connection.emit('joinRoom', username, roomName);
+		socket.connection.once('message', ({ text }) => {
 			usernameCreated = true;
 		});
 
-		$socket.once('error', ({ message }) => {
+		socket.connection.once('error', ({ message }) => {
 			displayToast(message, 'error');
 		});
 	}

@@ -1,6 +1,6 @@
 <script>
 	import { onMount } from 'svelte';
-	import { socket, setSocketConnection } from '$lib/stores/socket-store';
+	import { socket } from '$lib/stores/socket-store.svelte.js';
 	import { displayToast } from '$lib/components/Toasts';
 	import { goto } from '$app/navigation';
 	import UsernameForm from './UsernameForm.svelte';
@@ -31,38 +31,38 @@
 	/** @type {$state<number>} Stake / Chal value that player wants to wager */
 	let chal = $state(1);
 
-	let myChance = $derived(roomData?.usersList[roomData?.currentPlayer]?.id === $socket?.id);
+	let myChance = $derived(roomData?.usersList[roomData?.currentPlayer]?.id === socket.connection?.id);
 	let usersPlaying = $derived(roomData?.usersList?.filter(({ isPacked }) => !isPacked));
 	const currentPlayerIsBlind = $derived(roomData?.usersList[roomData?.currentPlayer]?.isBlind);
 	
 	function leaveRoomHandler() {
-		$socket.emit('leaveRoom');
+		socket.connection.emit('leaveRoom');
 		goto('create-room');
 	}
 
 	function seeCardsHandler() {
-		$socket.emit('seeCards');
+		socket.connection.emit('seeCards');
 		chal = roomData?.maxStake;
 	}
 
 	function chalHandler() {
-		$socket.emit('play', false, chal);
+		socket.connection.emit('play', false, chal);
 	}
 
 	function showHandler() {
-		$socket.emit('show', data.roomName);
+		socket.connection.emit('show', data.roomName);
 	}
 
 	onMount(() => {
-		if ($socket === null) {
-			setSocketConnection();
+		if (socket.connection === null) {
+			socket.setConnection();
 		}
 
-		$socket.on('error', ({ message }) => {
+		socket.connection.on('error', ({ message }) => {
 			displayToast(message, 'error');
 		});
 
-		$socket.on('message', ({ text }) => {
+		socket.connection.on('message', ({ text }) => {
 			if (text.includes('won')) {
 				displayToast(text, 'success');
 				return;
@@ -70,24 +70,24 @@
 			displayToast(text, 'info');
 		});
 
-		$socket.on('roomData', (res) => {
+		socket.connection.on('roomData', (res) => {
 			roomData = { ...roomData, ...res };
 			// Whenever the roomData changes, reset the chal based on the current player's blind status
 			chal = Math.ceil(roomData?.maxStake / (currentPlayerIsBlind ? 2 : 1));
 		});
 
-		$socket.on('disconnect', (reason) => {
+		socket.connection.on('disconnect', (reason) => {
 			if (reason === 'io server disconnect') {
 				// the disconnection was initiated by the server, you need to reconnect manually
-				socket.connect();
+				socket.connection.connect();
 			}
-			// else the socket will automatically try to reconnect
+			// else the socket.connection will automatically try to reconnect
 		});
 	});
 
 	function startGameHandler(e) {
 		e.preventDefault();
-		$socket.emit('start', data.roomName, cutAt, cardsToDeal);
+		socket.connection.emit('start', data.roomName, cutAt, cardsToDeal);
 	}
 
 	function packHandler() {
@@ -95,11 +95,11 @@
 		if (!confirmResult) {
 			return;
 		}
-		$socket.emit('play', true);
+		socket.connection.emit('play', true);
 	}
 
 	function declareWinnerHanlder() {
-		$socket.emit('confirmWin', selectedWinnerID, data.roomName)
+		socket.connection.emit('confirmWin', selectedWinnerID, data.roomName)
 	}
 </script>
 
@@ -120,7 +120,7 @@
 </div>
 
 <!-- Once game ends, show the game initiater the option to select the winner -->
-{#if roomData?.gameShow && $socket?.id === roomData.initiator}
+{#if roomData?.gameShow && socket.connection?.id === roomData.initiator}
 	<DeclareWinner bind:selectedWinnerID {declareWinnerHanlder} {usersPlaying} />
 {/if}
 
@@ -194,7 +194,7 @@
 							{#each user.cardsInHand as card}
 								<!-- Only show cards when current user is not blind  -->
 								<!-- Only show cards when gameShow is true and current user is not packed (only show cards for last 2 remaining players)  -->
-								{#if (!user.isBlind && user.id === $socket.id) || (roomData.gameShow && !user.isPacked)}
+								{#if (!user.isBlind && user.id === socket.connection.id) || (roomData.gameShow && !user.isPacked)}
 									<card-t class="w-32" rank={card.rank} suit={card.suit}></card-t>
 								{:else}
 									<card-t class="w-32" rank="0" backcolor="green" backtext=" "></card-t>
@@ -206,7 +206,7 @@
 							<p>Packed</p>
 						{:else if roomData?.gameShow}
 							<p>Show Called</p>
-						{:else if user.id === $socket.id}
+						{:else if user.id === socket.connection.id}
 							<div class="flex flex-wrap justify-end gap-2">
 								<button
 									onclick={seeCardsHandler}
