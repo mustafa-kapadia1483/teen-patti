@@ -1,28 +1,28 @@
-<script>
+<script lang="ts">
 	import { socket } from '$lib/stores/socket-store.svelte.js';
 	import { displayToast } from '$lib/components/Toasts';
 
 	/** @type {{username: string, usernameCreated?: boolean, roomName: string}} */
 	let { username = $bindable(), usernameCreated = $bindable(false), roomName } = $props();
 
-	function createUserHandler(e) {
+	function createUserHandler(e: MouseEvent): void {
 		e.preventDefault();
 		if (!username) {
 			displayToast('Could not Create User: Please enter valid username', 'error');
 			return;
 		}
-		socket.connection.emit('joinRoom', username, roomName);
-		socket.connection.once('message', ({ text }) => {
+		socket.emit('joinRoom', username, roomName);
+		socket.once('message', ({ text }) => {
 			usernameCreated = true;
 		});
 
-		socket.connection.once('error', ({ message }) => {
+		socket.once('error', ({ message }) => {
 			displayToast(message, 'error');
 		});
 	}
 </script>
 
-<form class="bg-slate-700 flex md:w-96 items-end p-5 rounded-md mt-4 gap-2">
+<form class="mt-4 flex items-end gap-2 rounded-md bg-slate-700 p-5 md:w-96">
 	<div class="form-control w-full max-w-xs">
 		<label class="label" for="username">
 			<span class="label-text">Username</span>

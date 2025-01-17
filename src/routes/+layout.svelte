@@ -1,9 +1,8 @@
-<script>
+<script lang="ts">
 	import '../app.css';
 	import { Toasts } from '$lib/components/Toasts';
 	import GoogleAnalytics from '$lib/components/GoogleAnalytics.svelte';
 	
-	/** @type {{children?: import('svelte').Snippet}} */
 	let { children } = $props();
 </script>
 

@@ -1,6 +1,10 @@
-<script>
-    /** @type {{selectedWinnerID: string, declareWinnerHanlder: Function, usersPlaying: Array<User>}} */
-    let { selectedWinnerID = $bindable(), declareWinnerHanlder, usersPlaying } = $props();
+<script lang="ts">
+    interface Props {
+        selectedWinnerID: string;
+        declareWinnerHandler: (e: MouseEvent) => void;
+        usersPlaying: User[];
+    }
+    let { selectedWinnerID = $bindable(), declareWinnerHandler, usersPlaying }: Props = $props();
 </script>
 
 <div class="form-control">
@@ -11,6 +15,6 @@
                 <option value={user.id}>{user.username}</option>
             {/each}
         </select>
-        <button onclick={declareWinnerHanlder} class="btn">Declare Winner</button>
+        <button onclick={declareWinnerHandler} class="btn">Declare Winner</button>
     </div>
 </div>

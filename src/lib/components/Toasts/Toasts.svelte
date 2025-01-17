@@ -1,5 +1,5 @@
-<script>
-    import { toastQueue } from './stores.svelte.js';
+<script lang="ts">
+    import { toastQueue } from './stores.svelte';
 </script>
 <div class="toast">
     {#each toastQueue as { message, type }}

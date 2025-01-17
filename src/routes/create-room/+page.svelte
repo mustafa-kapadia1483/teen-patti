@@ -1,39 +1,39 @@
 <!-- Input for create room -->
-<script>
+<script lang="ts">
 	import { goto } from '$app/navigation';
 	import { socket } from '$lib/stores/socket-store.svelte.js';
 	import { displayToast } from '$lib/components/Toasts';
 	import { validateRoomAccess } from '$lib/utils/room';
 
-	/** @type {string} Room name */
-	let roomName = $state("");
+	let roomName = $state<string>('');
 
-	/** @type {number} Table value */
-	let table = $state(50);
+	let table = $state<number>(50);
 
-	function createRoomHanlder(e) {
+	function createRoomHanlder(e: MouseEvent) {
 		e.preventDefault();
 		if (!roomName) {
 			displayToast('Could not Create Room: Please enter valid room name', 'error');
 			return;
 		}
-		if(socket.connection === null) {
-			socket.setConnection();
-		}
 
-		socket.connection.emit('createRoom', roomName, table);
-		
-		socket.connection.once('message', ({ text }) => {
+		socket.emit('createRoom', roomName, table);
+
+		socket.once('message', ({ text }) => {
 			displayToast(text, 'success');
 			goto(roomName);
 		});
-		
-		socket.connection.once('error', ({ message }) => {
+
+		socket.once('error', ({ message }) => {
 			displayToast(message, 'error');
 		});
+
+		if (!socket.connected) {
+			displayToast('Could not create room, please try again after sometime', 'error');
+			return;
+		}
 	}
 
-	async function joinRoomHandler(e) {
+	async function joinRoomHandler(e: MouseEvent) {
 		e.preventDefault();
 		if (!roomName) {
 			displayToast('Could not Join Room: Please enter valid room name', 'error');
@@ -41,7 +41,7 @@
 		}
 
 		const roomAcess = await validateRoomAccess(roomName);
-		if (roomAcess.hasOwnProperty('error')) {
+		if (roomAcess?.error) {
 			displayToast(roomAcess.error, 'error');
 			return;
 		}
@@ -59,12 +59,12 @@
 			<input
 				bind:value={roomName}
 				oninput={() => {
-					roomName = roomName?.toLowerCase().trim();
+					roomName = roomName.toLowerCase().trim();
 				}}
 				id="roomName"
 				type="text"
 				placeholder="Enter Room Name"
-				class="input input-bordered w-full max-w-xs join-item"
+				class="input join-item input-bordered w-full max-w-xs"
 			/>
 			<button onclick={joinRoomHandler} class="btn btn-square join-item">Join</button>
 		</div>
@@ -83,7 +83,5 @@
 		/>
 	</div>
 
-	<button class="mt-4 btn btn-info" onclick={createRoomHanlder}>
-		Create Room
-	</button>
+	<button class="btn btn-info mt-4" onclick={createRoomHanlder}> Create Room </button>
 </form>

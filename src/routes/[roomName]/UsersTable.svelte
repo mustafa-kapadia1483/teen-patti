@@ -1,8 +1,9 @@
-<script>
-	/** 
-	 * @type {{table: number, usersList: Array<User>}} 
-	 * */
-	let { table, usersList } = $props();
+<script lang="ts">
+	interface Props {
+		table: number;
+		usersList: User[];
+	}
+	let { table, usersList }: Props = $props();
 </script>
 
 <div class="overflow-x-auto max-w-fit">
