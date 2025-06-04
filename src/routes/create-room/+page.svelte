@@ -51,42 +51,43 @@
 </script>
 
 <form>
-	<div class="form-control w-full max-w-xs">
-		<label for="roomName" class="label">
-			<span class="label-text">Room Name:</span>
-		</label>
+	<div class="form-control w-full max-w-xs space-y-6">
 		<div class="join">
-			<input
-				bind:value={roomName}
-				oninput={() => {
-					roomName = roomName.toLowerCase().trim();
-				}}
-				id="roomName"
-				type="text"
-				placeholder="Enter Room Name"
-				class="input join-item input-bordered w-full max-w-xs"
-			/>
+			<label class="floating-label">
+				<span>Room Name:</span>
+				<input
+					min="50"
+					bind:value={roomName}
+					oninput={() => {
+						roomName = roomName.toLowerCase().trim();
+					}}
+					id="roomName"
+					type="text"
+					placeholder="Enter Room Name"
+					class="input input-md"
+				/>
+			</label>
 			<button onclick={joinRoomHandler} class="btn btn-square join-item">Join</button>
 		</div>
-	</div>
-	<div class="form-control w-full max-w-xs">
-		<label for="table" class="label">
-			<span class="label-text">Table:</span>
-		</label>
-		<input
-			min="50"
-			bind:value={table}
-			id="table"
-			type="number"
-			placeholder="Type here"
-			class="input input-bordered w-full max-w-xs"
-		/>
-	</div>
-	{#if socket.connected}
-		<button class="btn btn-info mt-4" onclick={createRoomHanlder}>Create Room</button>
-	{:else}
-		<div class="btn btn-info mt-4">
-			<span class="loading loading-spinner loading-md"></span> Connecting
+		<div class="form-control w-full max-w-xs">
+			<label class="floating-label">
+				<span>Table</span>
+				<input
+					min="50"
+					bind:value={table}
+					id="table"
+					type="number"
+					placeholder="Table"
+					class="input input-md"
+				/>
+			</label>
 		</div>
-	{/if}
+		{#if socket.connected}
+			<button class="btn btn-info mt-4" onclick={createRoomHanlder}>Create Room</button>
+		{:else}
+			<div class="btn btn-info mt-4">
+				<span class="loading loading-spinner loading-md"></span> Connecting
+			</div>
+		{/if}
+	</div>
 </form>

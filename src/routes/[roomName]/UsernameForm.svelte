@@ -22,20 +22,22 @@
 	}
 </script>
 
-<form class="mt-4 flex items-end gap-2 rounded-md bg-slate-700 p-5 md:w-96">
+<form class="mt-4 flex max-w-max items-end gap-2 rounded-md bg-slate-700 p-5">
 	<div class="form-control w-full max-w-xs">
-		<label class="label" for="username">
-			<span class="label-text">Username</span>
-		</label>
-		<input
-			bind:value={username}
-			required
-			type="text"
-			id="username"
-			placeholder="Type here"
-			class="input input-bordered w-full max-w-xs"
-		/>
-	</div>
+		<div class="join">
+			<label for="username" class="floating-label">
+				<span>Username:</span>
+				<input
+					bind:value={username}
+					required
+					type="text"
+					id="username"
+					placeholder="Enter your username"
+					class="input input-bordered w-full max-w-xs"
+				/>
+			</label>
 
-	<button class="btn btn-info" onclick={createUserHandler}> Create User </button>
+			<button class="btn btn-info" onclick={createUserHandler}> Create User </button>
+		</div>
+	</div>
 </form>
