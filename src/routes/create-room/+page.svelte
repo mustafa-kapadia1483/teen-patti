@@ -16,18 +16,18 @@
 			return;
 		}
 
-		socket.emit('createRoom', roomName, table);
+		socket.socket.emit('createRoom', roomName, table);
 
-		socket.once('message', ({ text }) => {
+		socket.socket.once('message', ({ text }) => {
 			displayToast(text, 'success');
 			goto(roomName);
 		});
 
-		socket.once('error', ({ message }) => {
+		socket.socket.once('error', ({ message }) => {
 			displayToast(message, 'error');
 		});
 
-		if (!socket.connected) {
+		if (!socket.socket.connected) {
 			displayToast('Could not create room, please try again after sometime', 'error');
 			return;
 		}
@@ -82,6 +82,11 @@
 			class="input input-bordered w-full max-w-xs"
 		/>
 	</div>
-
-	<button class="btn btn-info mt-4" onclick={createRoomHanlder}> Create Room </button>
+	{#if socket.connected}
+		<button class="btn btn-info mt-4" onclick={createRoomHanlder}>Create Room</button>
+	{:else}
+		<div class="btn btn-info mt-4">
+			<span class="loading loading-spinner loading-md"></span> Connecting
+		</div>
+	{/if}
 </form>

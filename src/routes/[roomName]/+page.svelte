@@ -42,35 +42,35 @@
 	});
 
 	/** To check whether the current player is allowed to play */
-	const myChance = $derived<boolean>(roomData?.usersList?.[roomData?.currentPlayer]?.id === socket?.id);
+	const myChance = $derived<boolean>(roomData?.usersList?.[roomData?.currentPlayer]?.id === socket.socket?.id);
 
 	/** To check whether the current player is allowed to play blind */
 	const currentPlayerIsBlind = $derived(roomData?.usersList?.[roomData?.currentPlayer]?.isBlind);
 
 	function leaveRoomHandler() {
-		socket.emit('leaveRoom');
+		socket.socket.emit('leaveRoom');
 		goto('create-room');
 	}
 
 	function seeCardsHandler() {
-		socket.emit('seeCards');
+		socket.socket.emit('seeCards');
 		chal = maxStake;
 	}
 
 	function chalHandler() {
-		socket.emit('play', false, chal);
+		socket.socket.emit('play', false, chal);
 	}
 
 	function showHandler() {
-		socket.emit('show', data.roomName);
+		socket.socket.emit('show', data.roomName);
 	}
 
 	onMount(() => {
-		socket.on('error', ({ message }) => {
+		socket.socket.on('error', ({ message }) => {
 			displayToast(message, 'error');
 		});
 
-		socket.on('message', ({ text }) => {
+		socket.socket.on('message', ({ text }) => {
 			if (text.includes('won')) {
 				displayToast(text, 'success');
 				return;
@@ -78,16 +78,16 @@
 			displayToast(text, 'info');
 		});
 
-		socket.on('roomData', (res) => {
+		socket.socket.on('roomData', (res) => {
 			roomData = { ...roomData, ...res };
 			// Whenever the roomData changes, reset the chal based on the current player's blind status
 			chal = Math.ceil(maxStake / (currentPlayerIsBlind ? 2 : 1));
 		});
 
-		socket.on('disconnect', (reason) => {
+		socket.socket.on('disconnect', (reason) => {
 			if (reason === 'io server disconnect') {
 				// the disconnection was initiated by the server, you need to reconnect manually
-				socket.connect();
+				socket.socket.connect();
 			}
 			// else the socket will automatically try to reconnect
 		});
@@ -95,7 +95,7 @@
 
 	function startGameHandler(e: Event) {
 		e.preventDefault();
-		socket.emit('start', data.roomName, cutAt, cardsToDeal);
+		socket.socket.emit('start', data.roomName, cutAt, cardsToDeal);
 	}
 
 	function packHandler() {
@@ -103,12 +103,12 @@
 		if (!confirmResult) {
 			return;
 		}
-		socket.emit('play', true);
+		socket.socket.emit('play', true);
 	}
 
 	/** Handler for declaring the winner */
 	function declareWinnerHandler(): void {
-		socket.emit('confirmWin', selectedWinnerID, data.roomName);
+		socket.socket.emit('confirmWin', selectedWinnerID, data.roomName);
 	}
 </script>
 
@@ -135,7 +135,7 @@
 </div>
 
 <!-- Once game ends, show the game initiater the option to select the winner -->
-{#if roomData?.gameShow && socket?.id === roomData.initiator}
+{#if roomData?.gameShow && socket.socket?.id === roomData.initiator}
 	<DeclareWinner bind:selectedWinnerID {declareWinnerHandler} {usersPlaying} />
 {/if}
 
@@ -209,7 +209,7 @@
 							{#each user.cardsInHand as card}
 								<!-- Only show cards when current user is not blind  -->
 								<!-- Only show cards when gameShow is true and current user is not packed (only show cards for last 2 remaining players)  -->
-								{#if (!user.isBlind && user.id === socket.id) || (roomData.gameShow && !user.isPacked)}
+								{#if (!user.isBlind && user.id === socket.socket.id) || (roomData.gameShow && !user.isPacked)}
 									<card-t class="w-32" rank={card.rank} suit={card.suit}></card-t>
 								{:else}
 									<card-t class="w-32" rank="0" backcolor="green" backtext=" "></card-t>
@@ -221,7 +221,7 @@
 							<p>Packed</p>
 						{:else if roomData.gameShow}
 							<p>Show Called</p>
-						{:else if user.id === socket.id}
+						{:else if user.id === socket.socket.id}
 							<div class="flex flex-wrap justify-end gap-2">
 								<button onclick={seeCardsHandler} disabled={!user.isBlind} class="btn btn-accent"
 									>See</button

@@ -11,12 +11,12 @@
 			displayToast('Could not Create User: Please enter valid username', 'error');
 			return;
 		}
-		socket.emit('joinRoom', username, roomName);
-		socket.once('message', ({ text }) => {
+		socket.socket.emit('joinRoom', username, roomName);
+		socket.socket.once('message', ({ text }) => {
 			usernameCreated = true;
 		});
 
-		socket.once('error', ({ message }) => {
+		socket.socket.once('error', ({ message }) => {
 			displayToast(message, 'error');
 		});
 	}
