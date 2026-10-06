@@ -1,3 +1,7 @@
+<script lang="ts">
+	import { Info } from '@lucide/svelte';
+</script>
+
 <article class="bg-base-200/50 min-h-screen p-4 md:p-8">
 	<div class="mx-auto max-w-6xl space-y-8">
 		<div class="card bg-base-100 shadow-xl">
@@ -64,18 +68,7 @@
 			<div class="card-body">
 				<h2 class="card-title text-base-content text-2xl font-bold">Show</h2>
 				<div class="alert shadow-lg">
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						fill="none"
-						viewBox="0 0 24 24"
-						class="h-6 w-6 shrink-0 stroke-current"
-						><path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-						></path></svg
-					>
+					<Info class="h-6 w-6 shrink-0 stroke-current" />
 					<p>
 						When only two players remain, their cards are compared. The higher-ranking hand wins.
 					</p>

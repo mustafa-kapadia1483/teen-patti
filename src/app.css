@@ -1,20 +1,70 @@
 @import 'tailwindcss';
-@plugin "daisyui";
+@plugin 'daisyui' {
+	themes: teen-patti;
+}
 
 /*
-  The default border color has changed to `currentcolor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
+  Custom "Teen Patti" casino theme.
+  Uses DaisyUI v5 @plugin theme API.
+  Colors: dark-green felt background, gold primary/accent, red secondary.
+*/
+@plugin 'daisyui/theme' {
+	name: teen-patti;
+	default: true;
+	--color-base-100: oklch(12% 0.04 145); /* darkest green - cards, modals */
+	--color-base-200: oklch(15% 0.05 145); /* slightly lighter - inputs, table rows */
+	--color-base-300: oklch(20% 0.06 145); /* borders, dividers */
+	--color-base-content: oklch(90% 0.02 80); /* warm off-white text */
 
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
+	/* Gold — primary action color (buttons, links, focus rings) */
+	--color-primary: oklch(72% 0.17 80); /* rich gold */
+	--color-primary-content: oklch(18% 0.05 80); /* dark text on gold bg */
+
+	/* Muted gold — secondary / outline variant */
+	--color-secondary: oklch(40% 0.08 145); /* dark forest green */
+	--color-secondary-content: oklch(72% 0.17 80); /* gold text on green bg */
+
+	/* Red — accent (hearts/diamonds suits) */
+	--color-accent: oklch(52% 0.22 25); /* vivid red */
+	--color-accent-content: oklch(96% 0.01 0);
+
+	/* Neutral */
+	--color-neutral: oklch(18% 0.04 145);
+	--color-neutral-content: oklch(80% 0.02 80);
+
+	/* Semantic states */
+	--color-info: oklch(65% 0.15 220);
+	--color-info-content: oklch(98% 0 0);
+	--color-success: oklch(65% 0.18 145);
+	--color-success-content: oklch(98% 0 0);
+	--color-warning: oklch(72% 0.17 80); /* reuse gold */
+	--color-warning-content: oklch(18% 0.05 80);
+	--color-error: oklch(52% 0.22 25); /* reuse red */
+	--color-error-content: oklch(96% 0.01 0);
+
+	/* Shape & radius tokens */
+	--radius-selector: 0.75rem;
+	--radius-field: 0.75rem;
+	--radius-box: 1.25rem;
+	--border: 1px;
+}
+
+/*
+  Global base layer: body background and font smoothing.
 */
 @layer base {
+	html {
+		background: oklch(10% 0.04 145);
+	}
+	body {
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+	}
 	*,
 	::after,
 	::before,
 	::backdrop,
 	::file-selector-button {
-		border-color: var(--color-gray-200, currentcolor);
+		border-color: var(--color-base-300);
 	}
 }

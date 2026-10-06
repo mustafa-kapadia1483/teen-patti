@@ -6,6 +6,20 @@
 	import UsernameForm from './UsernameForm.svelte';
 	import UsersTable from './UsersTable.svelte';
 	import DeclareWinner from './DeclareWinner.svelte';
+	import PlayingCard from '#lib/components/PlayingCard.svelte';
+	import {
+		LogOut,
+		Coins,
+		Users,
+		IndianRupee,
+		Play,
+		Eye,
+		Hand,
+		EyeOff,
+		Gavel,
+		Crown,
+		Swords
+	} from '@lucide/svelte';
 
 	let { data } = $props();
 
@@ -132,24 +146,37 @@
 	}
 </script>
 
-<svelte:head>
-	<script src="/elements.cardmeister.min.js"></script>
-</svelte:head>
+<div
+	class="navbar bg-base-100 border-primary/20 rounded-box mt-2 flex flex-col justify-between gap-4 border-b px-4 shadow-md md:flex-row md:gap-0"
+>
+	<div class="flex-1">
+		<h1 class="text-primary flex items-center gap-2 text-xl font-bold">
+			<Crown class="text-accent h-5 w-5" />
+			{usernameCreated ? username + ' @ ' : ''}{data.roomName}
+		</h1>
+	</div>
 
-<div class="mt-3 text-center md:flex md:flex-row md:justify-between">
-	<h1>{usernameCreated ? username : ''} Welcome to Room: {data.roomName}</h1>
-	<div class="mt-3 flex flex-col items-center gap-2 md:mt-0 md:items-end">
+	<div class="flex-none gap-4">
 		{#if roomData?.isStarted}
-			<div class="flex">
-				<p>Current Pot: {roomData.pot}</p>
-				<div class="divider divider-horizontal"></div>
-				<p>Max Stake: {maxStake}</p>
-				<div class="divider divider-horizontal"></div>
-				<p>Users Playing: {usersPlaying.length}</p>
+			<div class="bg-base-200 flex items-center gap-4 rounded-lg px-4 py-2 text-sm">
+				<div class="flex items-center gap-1 font-semibold">
+					<Coins class="text-primary h-4 w-4" /> Pot: {roomData.pot}
+				</div>
+				<div class="divider divider-horizontal m-0"></div>
+				<div class="flex items-center gap-1 font-semibold">
+					<IndianRupee class="h-4 w-4 opacity-60" /> Max: {maxStake}
+				</div>
+				<div class="divider divider-horizontal m-0"></div>
+				<div class="flex items-center gap-1 font-semibold">
+					<Users class="text-accent h-4 w-4" />
+					{usersPlaying.length}
+				</div>
 			</div>
 		{/if}
 		{#if usernameCreated}
-			<button class="btn btn-error btn-sm" onclick={leaveRoomHandler}>Leave Room</button>
+			<button class="btn btn-outline btn-error btn-sm" onclick={leaveRoomHandler}>
+				<LogOut class="h-4 w-4" /> Leave
+			</button>
 		{/if}
 	</div>
 </div>
@@ -160,39 +187,53 @@
 {/if}
 
 {#if roomData && !roomData.isStarted}
-	<form>
-		<div class="form-control w-full max-w-xs">
-			<label class="label" for="cardsToDeal">
-				<span class="label-text">Cards to Deal: {cardsToDeal}</span>
-			</label>
-			<input
-				bind:value={cardsToDeal}
-				required
-				min="1"
-				max={52 / roomData?.usersList?.length}
-				type="range"
-				id="cardsToDeal"
-				placeholder="Type here"
-				class="range"
-			/>
+	<div class="card bg-base-100 border-primary/20 mx-auto mt-6 max-w-lg shadow-xl">
+		<div class="card-body p-6">
+			<h2 class="card-title text-primary mb-4 justify-center">
+				<Swords class="h-5 w-5" /> Game Settings
+			</h2>
+			<form class="flex flex-col gap-4">
+				<div class="form-control w-full">
+					<label class="label" for="cardsToDeal">
+						<span class="label-text font-semibold"
+							>Cards to Deal: <span class="text-primary">{cardsToDeal}</span></span
+						>
+					</label>
+					<input
+						bind:value={cardsToDeal}
+						required
+						min="1"
+						max={52 / (roomData?.usersList?.length || 1)}
+						type="range"
+						id="cardsToDeal"
+						class="range range-primary"
+					/>
+				</div>
+				<div class="form-control w-full">
+					<label class="label" for="cutAt">
+						<span class="label-text font-semibold"
+							>Cut At: <span class="text-primary">{cutAt}</span></span
+						>
+					</label>
+					<input
+						bind:value={cutAt}
+						required
+						type="range"
+						id="cutAt"
+						min="0"
+						max={52 - cardsToDeal * (roomData?.usersList?.length || 1)}
+						class="range range-primary"
+					/>
+				</div>
+				<button
+					class="btn btn-primary mt-4 w-full font-bold tracking-widest uppercase"
+					onclick={startGameHandler}
+				>
+					<Play class="h-4 w-4" /> Start Game
+				</button>
+			</form>
 		</div>
-		<div class="form-control w-full max-w-xs">
-			<label class="label" for="cutAt">
-				<span class="label-text">Cut At: {cutAt}</span>
-			</label>
-			<input
-				bind:value={cutAt}
-				required
-				type="range"
-				id="cutAt"
-				min="0"
-				max={52 - cardsToDeal * roomData?.usersList?.length}
-				placeholder="Type here"
-				class="range"
-			/>
-		</div>
-		<button class="btn btn-success mt-2" onclick={startGameHandler}>Start Game</button>
-	</form>
+	</div>
 {/if}
 
 {#if !usernameCreated}
@@ -204,83 +245,113 @@
 {/if}
 
 {#if roomData?.isStarted}
-	<div class="mt-16 space-y-8 md:grid md:grid-cols-3 md:gap-3 md:space-y-0">
+	<div class="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
 		{#each roomData.usersList as user, userIndex}
 			<div class="indicator w-full">
 				{#if userIndex === roomData.currentPlayer}
-					<span class="badge indicator-item badge-secondary indicator-center indicator-top"
-						>playing…</span
-					>
+					<span class="badge indicator-item badge-primary z-20 font-bold shadow-sm">Turn</span>
 				{/if}
 				<div
-					class="card bg-base-100 w-full shadow-xl"
-					class:card-bordered={userIndex === roomData.currentPlayer}
-					class:bg-base-300={userIndex === roomData.currentPlayer}
+					class="card w-full shadow-2xl transition-all {userIndex === roomData.currentPlayer
+						? 'bg-base-200 border-primary ring-primary ring-offset-base-100 ring-2 ring-offset-2'
+						: 'bg-base-100 border-base-300'} relative overflow-hidden border"
 				>
-					<div class="card-body">
-						<div class="card-title">{user.username}</div>
-						<div class="flex justify-between">
-							<span>Cards:</span>
-							<span class="flex items-center gap-1"
-								><small>Balance:</small> <strong>{user.balance}</strong></span
+					{#if user.isPacked}
+						<div
+							class="bg-base-300/80 absolute inset-0 z-10 flex items-center justify-center backdrop-blur-[1px]"
+						>
+							<span
+								class="text-base-content/50 border-base-content/20 rotate-[-15deg] rounded-lg border-4 p-2 text-2xl font-black tracking-widest uppercase"
+								>Packed</span
 							>
 						</div>
-						<ol class="my-2 flex justify-center gap-2">
-							{#each user.cardsInHand as card}
-								<!-- Only show cards when current user is not blind  -->
-								<!-- Only show cards when gameShow is true and current user is not packed (only show cards for last 2 remaining players)  -->
-								{#if (!user.isBlind && user.id === socket.socket.id) || (roomData.gameShow && !user.isPacked)}
-									<card-t class="w-32" rank={card.rank} suit={card.suit}></card-t>
-								{:else}
-									<card-t class="w-32" rank="0" backcolor="green" backtext=" "></card-t>
+					{/if}
+					<div class="card-body p-5">
+						<div class="border-base-300 mb-2 flex items-center justify-between border-b pb-2">
+							<div class="card-title flex items-center gap-2 text-lg">
+								{user.username}
+								{#if user.id === socket.socket.id}
+									<span class="badge badge-sm badge-outline">You</span>
 								{/if}
+							</div>
+							<span
+								class="bg-base-300 flex items-center gap-1 rounded-md px-2 py-1 font-mono text-sm"
+							>
+								<IndianRupee class="h-3 w-3 opacity-60" />
+								{user.balance}
+							</span>
+						</div>
+
+						<ol class="relative my-4 flex h-36 justify-center gap-[-10px]">
+							{#each user.cardsInHand as card, cIdx}
+								<div
+									class="absolute transition-transform hover:-translate-y-4"
+									style="left: calc(50% + {(cIdx - 1) * 40}px - 40px); z-index: {cIdx};"
+								>
+									{#if (!user.isBlind && user.id === socket.socket.id) || (roomData.gameShow && !user.isPacked)}
+										<PlayingCard rank={card.rank} suit={card.suit} />
+									{:else}
+										<PlayingCard faceDown={true} />
+									{/if}
+								</div>
 							{/each}
 						</ol>
 
-						{#if user.isPacked}
-							<p>Packed</p>
-						{:else if roomData.gameShow}
-							<p>Show Called</p>
-						{:else if user.id === socket.socket.id}
-							<div class="flex flex-wrap justify-end gap-2">
-								<button onclick={seeCardsHandler} disabled={!user.isBlind} class="btn btn-accent"
-									>See</button
-								>
-								{#if myChance}
-									<div class="form-control">
-										<div class="input-group">
+						<div class="border-base-300 mt-4 flex min-h-[4rem] flex-col justify-end border-t pt-4">
+							{#if roomData.gameShow}
+								<div class="badge badge-accent badge-lg mx-auto font-bold">
+									<Eye class="mr-1 h-4 w-4" /> Showdown
+								</div>
+							{:else if user.id === socket.socket.id && !user.isPacked}
+								<div class="flex flex-wrap items-center justify-between gap-2">
+									<div class="flex gap-2">
+										<button
+											onclick={seeCardsHandler}
+											disabled={!user.isBlind}
+											class="btn btn-sm btn-outline {user.isBlind ? 'btn-info' : 'btn-disabled'}"
+										>
+											{#if user.isBlind}<Eye class="h-4 w-4" /> See{:else}<EyeOff class="h-4 w-4" /> Seen{/if}
+										</button>
+										{#if myChance}
+											<button
+												disabled={!myChance}
+												onclick={packHandler}
+												class="btn btn-sm btn-error btn-outline"
+											>
+												<Hand class="h-4 w-4" /> Pack
+											</button>
+										{/if}
+									</div>
+
+									{#if myChance}
+										<div class="join">
 											<input
 												bind:value={chal}
 												min={roomData.maxStake / (user.isBlind ? 2 : 1)}
 												max={user.balance}
 												type="number"
-												class="input input-bordered w-16"
-												disabled={!myChance}
+												class="input input-bordered input-sm join-item w-20 text-center font-mono"
 											/>
-											<button
-												disabled={!myChance}
-												onclick={chalHandler}
-												class="btn btn-square btn-secondary"
-											>
+											<button onclick={chalHandler} class="btn btn-sm btn-primary join-item">
 												{user.isBlind ? 'Blind' : 'Chal'}
 											</button>
 										</div>
-									</div>
-									<button
-										disabled={!myChance}
-										onclick={packHandler}
-										class="btn btn-outline btn-error">Pack</button
-									>
-									<button
-										disabled={usersPlaying.length > 2 || !myChance}
-										onclick={showHandler}
-										class="btn btn-success">Show</button
-									>
+									{/if}
+								</div>
+
+								{#if myChance && usersPlaying.length === 2}
+									<button onclick={showHandler} class="btn btn-accent btn-sm mt-3 w-full font-bold">
+										<Gavel class="h-4 w-4" /> Show
+									</button>
 								{/if}
-							</div>
-						{:else}
-							<div>{user.isBlind ? 'Playing Blind' : 'Cards Seen'}</div>
-						{/if}
+							{:else}
+								<div class="text-base-content/60 text-center text-sm font-semibold">
+									{#if !user.isPacked}
+										{user.isBlind ? 'Playing Blind' : 'Cards Seen'}
+									{/if}
+								</div>
+							{/if}
+						</div>
 					</div>
 				</div>
 			</div>

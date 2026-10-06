@@ -4,5 +4,5 @@
  * In production, it uses the VITE_SERVER_URL environment variable
  */
 export const serverURL: string = import.meta.env.DEV
-	? 'http://localhost:8080'
+	? 'https://teen-patti.onrender.com'
 	: import.meta.env.VITE_SERVER_URL;
