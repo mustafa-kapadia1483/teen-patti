@@ -297,7 +297,7 @@
 							{/each}
 						</ol>
 
-						<div class="border-base-300 mt-4 flex min-h-[4rem] flex-col justify-end border-t pt-4">
+						<div class="border-base-300 mt-4 flex min-h-16 flex-col justify-end border-t pt-4">
 							{#if roomData.gameShow}
 								<div class="badge badge-accent badge-lg mx-auto font-bold">
 									<Eye class="mr-1 h-4 w-4" /> Showdown
