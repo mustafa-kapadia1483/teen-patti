@@ -6,9 +6,9 @@
 	let { table, usersList }: Props = $props();
 </script>
 
-<div class="overflow-x-auto max-w-fit">
+<div class="max-w-fit overflow-x-auto">
 	<h2>Players Table:</h2>
-	<table class="table table-zebra">
+	<table class="table-zebra table">
 		<!-- head -->
 		<thead>
 			<tr>

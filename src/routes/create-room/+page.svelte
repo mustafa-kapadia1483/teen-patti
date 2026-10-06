@@ -1,9 +1,9 @@
 <!-- Input for create room -->
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { socket } from '$lib/stores/socket-store.svelte.js';
-	import { displayToast } from '$lib/components/Toasts';
-	import { validateRoomAccess } from '$lib/utils/room';
+	import { socket } from '#lib/stores/socket-store.svelte.js';
+	import { displayToast } from '#lib/components/Toasts/index.js';
+	import { validateRoomAccess } from '#lib/utils/room.js';
 
 	let roomName = $state<string>('');
 
@@ -20,7 +20,7 @@
 
 		socket.socket.once('message', ({ text }) => {
 			displayToast(text, 'success');
-			goto(roomName);
+			goto('/' + roomName);
 		});
 
 		socket.socket.once('error', ({ message }) => {
@@ -46,7 +46,7 @@
 			return;
 		}
 
-		goto(roomName);
+		goto('/' + roomName);
 	}
 </script>
 

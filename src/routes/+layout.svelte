@@ -1,20 +1,20 @@
 <script lang="ts">
 	import '../app.css';
-	import { Toasts } from '$lib/components/Toasts';
-	import GoogleAnalytics from '$lib/components/GoogleAnalytics.svelte';
-	
+	import { Toasts } from '#lib/components/Toasts/index.js';
+	import GoogleAnalytics from '#lib/components/GoogleAnalytics.svelte';
+
 	let { children } = $props();
 </script>
 
 <GoogleAnalytics />
 
-<nav class="container mx-auto navbar bg-base-100">
+<nav class="navbar bg-base-100 container mx-auto">
 	<div class="navbar-start">
-		<a class="normal-case text-xl" href="/">Teen Patti</a>
+		<a class="text-xl normal-case" href="/">Teen Patti</a>
 	</div>
 	<div class="navbar-end">
 		<a
-			class="mr-4 link link-hover"
+			class="link link-hover mr-4"
 			href="https://github.com/mustafa-kapadia1483/teen-patti"
 			target="_blank"
 			rel="noreferrer">Github</a

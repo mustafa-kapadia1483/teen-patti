@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { socket } from '$lib/stores/socket-store.svelte.js';
-	import { displayToast } from '$lib/components/Toasts';
+	import { socket } from '#lib/stores/socket-store.svelte.js';
+	import { displayToast } from '#lib/components/Toasts/index.js';
 
 	/** @type {{username: string, usernameCreated?: boolean, roomName: string}} */
 	let { username = $bindable(), usernameCreated = $bindable(false), roomName } = $props();

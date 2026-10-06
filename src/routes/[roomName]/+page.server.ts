@@ -1,5 +1,5 @@
 import { error } from '@sveltejs/kit';
-import { validateRoomAccess } from '$lib/utils/room';
+import { validateRoomAccess } from '#lib/utils/room.js';
 
 export async function load({ params }): Promise<{ roomName: string }> {
 	const { roomName } = params;

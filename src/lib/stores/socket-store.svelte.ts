@@ -1,6 +1,6 @@
 import { io } from 'socket.io-client';
 import customParser from 'socket.io-msgpack-parser';
-import { serverURL } from '$lib/config';
+import { serverURL } from '#lib/config.js';
 
 class SocketStore {
 	socket = io(serverURL, {

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { socket } from '$lib/stores/socket-store.svelte.js';
-	import { displayToast } from '$lib/components/Toasts';
+	import { socket } from '#lib/stores/socket-store.svelte.js';
+	import { displayToast } from '#lib/components/Toasts/index.js';
 	import { goto } from '$app/navigation';
 	import UsernameForm from './UsernameForm.svelte';
 	import UsersTable from './UsersTable.svelte';
@@ -14,8 +14,8 @@
 
 	/** To check whether user has been created and joined the room */
 	let usernameCreated = $state<boolean>(false);
-		
-	let roomData = $state<RoomData|null>(null);
+
+	let roomData = $state<RoomData | null>(null);
 	$inspect(roomData);
 
 	/** Value to cut the deck at */
@@ -25,13 +25,13 @@
 	let cardsToDeal = $state<number>(3);
 
 	/** ID of the user who won the round */
-	let selectedWinnerID = $state<string>("");
+	let selectedWinnerID = $state<string>('');
 
 	/** Stake / Chal value that player wants to wager */
 	let chal = $state<number>(1);
-	
+
 	let maxStake = $derived<number>(roomData?.maxStake || 1);
-	
+
 	/** Users who are still in the game */
 	const usersPlaying = $derived.by((): Array<User> => {
 		if (roomData && roomData.usersList) {
@@ -42,14 +42,16 @@
 	});
 
 	/** To check whether the current player is allowed to play */
-	const myChance = $derived<boolean>(roomData?.usersList?.[roomData?.currentPlayer]?.id === socket.socket?.id);
+	const myChance = $derived<boolean>(
+		roomData?.usersList?.[roomData?.currentPlayer]?.id === socket.socket?.id
+	);
 
 	/** To check whether the current player is allowed to play blind */
 	const currentPlayerIsBlind = $derived(roomData?.usersList?.[roomData?.currentPlayer]?.isBlind);
 
 	function leaveRoomHandler() {
 		socket.socket.emit('leaveRoom');
-		goto('create-room');
+		goto('/create-room');
 	}
 
 	function seeCardsHandler() {
@@ -118,7 +120,7 @@
 
 <div class="mt-3 text-center md:flex md:flex-row md:justify-between">
 	<h1>{usernameCreated ? username : ''} Welcome to Room: {data.roomName}</h1>
-	<div class="mt-3 md:mt-0 flex items-center flex-col md:items-end gap-2">
+	<div class="mt-3 flex flex-col items-center gap-2 md:mt-0 md:items-end">
 		{#if roomData?.isStarted}
 			<div class="flex">
 				<p>Current Pot: {roomData.pot}</p>
@@ -193,7 +195,7 @@
 					>
 				{/if}
 				<div
-					class="card w-full bg-base-100 shadow-xl"
+					class="card bg-base-100 w-full shadow-xl"
 					class:card-bordered={userIndex === roomData.currentPlayer}
 					class:bg-base-300={userIndex === roomData.currentPlayer}
 				>
