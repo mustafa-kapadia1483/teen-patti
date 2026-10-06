@@ -68,31 +68,49 @@
 	}
 
 	onMount(() => {
-		socket.socket.on('error', ({ message }) => {
-			displayToast(message, 'error');
-		});
+		// Fix #1: open the connection only when the room page is active
+		socket.connect();
 
-		socket.socket.on('message', ({ text }) => {
+		// Named handlers so they can be cleanly removed on unmount (Fix #2)
+		function onError({ message }: { message: string }) {
+			displayToast(message, 'error');
+		}
+
+		function onMessage({ text }: { text: string }) {
 			if (text.includes('won')) {
 				displayToast(text, 'success');
 				return;
 			}
 			displayToast(text, 'info');
-		});
+		}
 
-		socket.socket.on('roomData', (res) => {
+		function onRoomData(res: RoomData) {
 			roomData = { ...roomData, ...res };
 			// Whenever the roomData changes, reset the chal based on the current player's blind status
 			chal = Math.ceil(maxStake / (currentPlayerIsBlind ? 2 : 1));
-		});
+		}
 
-		socket.socket.on('disconnect', (reason) => {
+		function onDisconnect(reason: string) {
 			if (reason === 'io server disconnect') {
 				// the disconnection was initiated by the server, you need to reconnect manually
-				socket.socket.connect();
+				socket.connect();
 			}
 			// else the socket will automatically try to reconnect
-		});
+		}
+
+		socket.socket.on('error', onError);
+		socket.socket.on('message', onMessage);
+		socket.socket.on('roomData', onRoomData);
+		socket.socket.on('disconnect', onDisconnect);
+
+		// Fix #2: tear down all listeners and the connection when leaving the room
+		return () => {
+			socket.socket.off('error', onError);
+			socket.socket.off('message', onMessage);
+			socket.socket.off('roomData', onRoomData);
+			socket.socket.off('disconnect', onDisconnect);
+			socket.disconnect();
+		};
 	});
 
 	function startGameHandler(e: Event) {

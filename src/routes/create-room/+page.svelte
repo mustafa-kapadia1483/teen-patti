@@ -1,5 +1,6 @@
 <!-- Input for create room -->
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { socket } from '#lib/stores/socket-store.svelte.js';
 	import { displayToast } from '#lib/components/Toasts/index.js';
@@ -9,28 +10,44 @@
 
 	let table = $state<number>(50);
 
+	onMount(() => {
+		// Connect here so the "Create Room" button becomes visible once connected.
+		// We do NOT disconnect on leave — if the user is navigating to a room,
+		// disconnecting here would sever the connection before [roomName] can take over.
+		// The [roomName] page owns the full connect/disconnect lifecycle.
+		socket.connect();
+	});
+
 	function createRoomHanlder(e: MouseEvent) {
 		e.preventDefault();
+
+		// Guard first — before registering any listeners or emitting
+		if (!socket.socket.connected) {
+			displayToast('Could not create room, please try again after sometime', 'error');
+			return;
+		}
+
 		if (!roomName) {
 			displayToast('Could not Create Room: Please enter valid room name', 'error');
 			return;
 		}
 
-		socket.socket.emit('createRoom', roomName, table);
-
-		socket.socket.once('message', ({ text }) => {
+		// Use named handlers so they can be cleaned up if either fires
+		function onSuccess({ text }: { text: string }) {
+			socket.socket.off('error', onFailure);
 			displayToast(text, 'success');
 			goto('/' + roomName);
-		});
-
-		socket.socket.once('error', ({ message }) => {
-			displayToast(message, 'error');
-		});
-
-		if (!socket.socket.connected) {
-			displayToast('Could not create room, please try again after sometime', 'error');
-			return;
 		}
+
+		function onFailure({ message }: { message: string }) {
+			socket.socket.off('message', onSuccess);
+			displayToast(message, 'error');
+		}
+
+		socket.socket.once('message', onSuccess);
+		socket.socket.once('error', onFailure);
+
+		socket.socket.emit('createRoom', roomName, table);
 	}
 
 	async function joinRoomHandler(e: MouseEvent) {
