@@ -24,7 +24,7 @@
 
 	onMount(() => {
 		// Connect here so the "Create Room" button becomes visible once connected.
-		// We do NOT disconnect on leave â€” if the user is navigating to a room,
+		// We do NOT disconnect on leave  if the user is navigating to a room,
 		// disconnecting here would sever the connection before [roomName] can take over.
 		// The [roomName] page owns the full connect/disconnect lifecycle.
 		socket.connect();
@@ -33,7 +33,7 @@
 	function createRoomHanlder(e: MouseEvent) {
 		e.preventDefault();
 
-		// Guard first â€” before registering any listeners or emitting
+		// Guard first  before registering any listeners or emitting
 		if (!socket.socket.connected) {
 			displayToast('Could not create room, please try again after sometime', 'error');
 			return;

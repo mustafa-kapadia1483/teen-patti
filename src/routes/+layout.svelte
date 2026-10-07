@@ -2,13 +2,15 @@
 	import '../app.css';
 	import { Toasts } from '#lib/components/Toasts/index.js';
 	import GoogleAnalytics from '#lib/components/GoogleAnalytics.svelte';
+	import { page } from '$app/state';
+	import { fade, fly } from 'svelte/transition';
 
 	let { children } = $props();
 </script>
 
 <GoogleAnalytics />
 
-<nav class="navbar bg-base-100 container mx-auto">
+<nav class="navbar bg-base-100 container mx-auto relative z-20">
 	<div class="navbar-start">
 		<a class="text-xl normal-case" href="/">Teen Patti</a>
 	</div>
@@ -23,7 +25,17 @@
 	</div>
 </nav>
 
-<main class="container mx-auto px-2">
-	{@render children?.()}
+<main class="container mx-auto px-2 min-h-[calc(100vh-4rem)]">
+	<div class="grid relative w-full">
+		{#key page.url.pathname}
+			<div 
+				class="col-start-1 row-start-1 w-full"
+				in:fly={{ y: 20, opacity: 0, duration: 400, delay: 400 }} 
+				out:fade={{ duration: 400 }}
+			>
+				{@render children?.()}
+			</div>
+		{/key}
+	</div>
 	<Toasts />
 </main>

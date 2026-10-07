@@ -7,6 +7,7 @@
 	import UsersTable from './UsersTable.svelte';
 	import DeclareWinner from './DeclareWinner.svelte';
 	import PlayingCard from '#lib/components/PlayingCard.svelte';
+	import { fly } from 'svelte/transition';
 	import {
 		LogOut,
 		Coins,
@@ -147,24 +148,44 @@
 </script>
 
 <div
-	class="navbar bg-base-100 border-primary/20 rounded-box mt-2 flex flex-col justify-between gap-4 border-b px-4 shadow-md md:flex-row md:gap-0"
+	class="bg-base-100/95 border-primary/20 sticky top-0 z-50 flex flex-col items-center justify-between gap-4 rounded-b-box border-b px-4 py-3 shadow-md backdrop-blur-md md:flex-row md:gap-0"
 >
-	<div class="flex-1">
+	<div class="flex w-full flex-1 flex-col items-center justify-center md:items-start md:justify-start">
 		<h1 class="text-primary flex items-center gap-2 text-xl font-bold">
 			<Crown class="text-accent h-5 w-5" />
 			{usernameCreated ? username + ' @ ' : ''}{data.roomName}
 		</h1>
+		{#if roomData?.isStarted && roomData?.usersList?.[roomData.currentPlayer]}
+			<div class="text-base-content/70 mt-1 flex items-center gap-1.5 text-xs font-medium">
+				<span class="loading loading-ring loading-xs text-warning"></span>
+				Waiting on: <span class="text-warning font-bold">{roomData.usersList[roomData.currentPlayer].username}</span>
+			</div>
+		{/if}
 	</div>
 
-	<div class="flex-none gap-4">
+	<div class="flex w-full flex-none flex-wrap items-center justify-center gap-3 md:w-auto md:justify-end">
 		{#if roomData?.isStarted}
-			<div class="bg-base-200 flex items-center gap-4 rounded-lg px-4 py-2 text-sm">
+			<div class="bg-base-200 flex items-center gap-2 rounded-lg px-3 py-2 text-xs md:gap-4 md:px-4 md:text-sm">
 				<div class="flex items-center gap-1 font-semibold">
-					<Coins class="text-primary h-4 w-4" /> Pot: {roomData.pot}
+					<Coins class="text-primary h-4 w-4" /> Pot:
+					<div class="grid overflow-hidden px-1">
+						{#key roomData.pot}
+							<span class="col-start-1 row-start-1" in:fly={{ y: -15, duration: 300 }} out:fly={{ y: 15, duration: 300 }}>
+								{roomData.pot || 0}
+							</span>
+						{/key}
+					</div>
 				</div>
 				<div class="divider divider-horizontal m-0"></div>
 				<div class="flex items-center gap-1 font-semibold">
-					<IndianRupee class="h-4 w-4 opacity-60" /> Max: {maxStake}
+					<IndianRupee class="h-4 w-4 opacity-60" /> Max:
+					<div class="grid overflow-hidden px-1">
+						{#key maxStake}
+							<span class="col-start-1 row-start-1" in:fly={{ y: -15, duration: 300 }} out:fly={{ y: 15, duration: 300 }}>
+								{maxStake}
+							</span>
+						{/key}
+					</div>
 				</div>
 				<div class="divider divider-horizontal m-0"></div>
 				<div class="flex items-center gap-1 font-semibold">
@@ -175,7 +196,7 @@
 		{/if}
 		{#if usernameCreated}
 			<button class="btn btn-outline btn-error btn-sm" onclick={leaveRoomHandler}>
-				<LogOut class="h-4 w-4" /> Leave
+				<LogOut class="h-4 w-4" /> <span class="hidden sm:inline">Leave</span>
 			</button>
 		{/if}
 	</div>
@@ -282,11 +303,13 @@
 							</span>
 						</div>
 
-						<ol class="relative my-4 flex h-36 justify-center gap-[-10px]">
+						<ol class="relative my-4 flex h-36 justify-center -space-x-12">
 							{#each user.cardsInHand as card, cIdx}
 								<div
-									class="absolute transition-transform hover:-translate-y-4"
-									style="left: calc(50% + {(cIdx - 1) * 40}px - 40px); z-index: {cIdx};"
+									class="relative transition-transform hover:-translate-y-4 focus:-translate-y-4 focus:outline-none cursor-pointer"
+									style="z-index: {cIdx};"
+									tabindex="0"
+									role="button"
 								>
 									{#if (!user.isBlind && user.id === socket.socket.id) || (roomData.gameShow && !user.isPacked)}
 										<PlayingCard rank={card.rank} suit={card.suit} />
