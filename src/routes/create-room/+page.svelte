@@ -200,9 +200,9 @@
 							<Sparkles class="h-4 w-4" /> Create Room
 						</button>
 					{:else}
-						<div class="btn btn-disabled w-full" aria-busy="true" aria-label="Connectingâ€¦">
+						<div class="btn btn-disabled w-full" aria-busy="true" aria-label="Connecting...">
 							<span class="loading loading-spinner loading-sm"></span>
-							Connectingâ€¦
+							Connecting...
 						</div>
 					{/if}
 				</div>
